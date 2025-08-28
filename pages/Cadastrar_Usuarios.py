@@ -100,11 +100,20 @@ usuario_selecionado = st.selectbox("Selecione um usuário", opcoes)
 
 # 🔁 Se for usuário existente, preencher dados
 if usuario_selecionado != "➕ Novo usuário":
-    usuario_data = next(u for u in usuarios if u["usuario"] == usuario_selecionado)
-    usuario = usuario_data["usuario"]
-    perfil_atual = usuario_data["perfil"]
+    try:
+        usuario_data = next(u for u in usuarios if u.get("usuario") == usuario_selecionado)
+        usuario = usuario_data.get("usuario", "")
+        perfil_atual = usuario_data.get("perfil", "Aluno")  # Valor padrão seguro
+    except StopIteration:
+        st.error(f"❌ Usuário '{usuario_selecionado}' não encontrado.")
+        st.stop()
+
     senha = st.text_input("🔒 Nova senha", type="password")
-    perfil = st.selectbox("🎓 Perfil", ["Aluno", "Professor", "Administrador"], index=["Aluno", "Professor", "Administrador"].index(perfil_atual))
+    perfil = st.selectbox(
+        "🎓 Perfil",
+        ["Aluno", "Professor", "Administrador"],
+        index=["Aluno", "Professor", "Administrador"].index(perfil_atual)
+    )
 
     col1, col2 = st.columns(2)
     with col1:
@@ -125,7 +134,6 @@ if usuario_selecionado != "➕ Novo usuário":
                 st.rerun()
             else:
                 st.error(f"❌ Erro ao excluir: {resultado}")
-
 # ➕ Adicionar novo usuário
 else:
     usuario = st.text_input("👤 Nome de usuário")
