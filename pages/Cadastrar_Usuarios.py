@@ -79,11 +79,13 @@ with st.sidebar:
         st.markdown("### 📞   Suporte")
         st.write("Email: suporte@meuapp.com")
         
-        # Botão para sair
+       # Botão para sair
         if st.button("🚪 Sair"):
-            # Remove dados de sessão
-            for key in ["usuario", "perfil"]:
+    # Remove dados de sessão
+            for key in ["usuario", "perfil", "usuario_id"]:
                 st.session_state.pop(key, None)
+    # Redireciona para a página inicial (gemini.py)
+                st.switch_page("gemini.py")
             # Reinicia a aplicação
                 st.rerun()
 
