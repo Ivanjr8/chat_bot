@@ -122,16 +122,18 @@ if usuario_selecionado != "➕ Novo usuário":
                 resultado = db.merge_usuario(usuario.strip(), senha.strip(), perfil)
                 if resultado == "atualizado":
                     st.success(f"🔁 Usuário '{usuario}' atualizado com sucesso!")
+                    st.rerun()  # 🔄 Reinicia a aplicação após sucesso
                 else:
                     st.error(f"❌ Erro: {resultado}")
             else:
                 st.warning("⚠️ Informe uma nova senha para atualizar.")
+
     with col2:
         if st.button("🗑️ Excluir"):
             resultado = db.delete_usuario(usuario)
             if resultado is True:
                 st.success(f"🗑️ Usuário '{usuario}' excluído com sucesso!")
-                st.rerun()
+                st.rerun() # 🔄 Reinicia a aplicação após sucesso
             else:
                 st.error(f"❌ Erro ao excluir: {resultado}")
 # ➕ Adicionar novo usuário
