@@ -1,53 +1,15 @@
 import streamlit as st
 from db_connection import DatabaseConnection
 
+
 # 🔧 Estilo personalizado
 with open("assets/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     
-    st.title("🔄 Cadastro ou Atualização de Usuário")
-    
-# Estilização da barra lateral
-st.markdown("""
-    <style>
-        [data-testid="stSidebar"] {
-           background: linear-gradient( #000000, #0000004c, #06080075);
-           color: white;
-           box-shadow: 0 0 10px rgba(0,0,0,0.5);
-           padding: 20px;
-           border-radius: 10px;
-        }
-       
-        [data-testid="stSidebar"] {
-           height: 100vh;
-        overflow-y: auto;
-}
-
-        [data-testid="stSidebar"] h2 {
-            color: #10b981;
-        }
-        [data-testid="stSidebar"] .stButton button {
-           background-color: #0000004c;
-           color: rgba(245, 245, 245, 0.849);
-           text-align: left;
-           padding-left: 12px;
-           width: 240px;
-           height: 40px;
-           border: none;
-           border-radius: 8px;
-           font-size: 18px;
-           font-weight: bold;
-           box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-           cursor: pointer;
-           transition: background-color 0.3s ease-in-out;
-           display: flex;
-           justify-content: flex-start;   /* Alinha conteúdo à esquerda */
-           align-items: center;           /* Centraliza verticalmente */
-           padding-left: 12px;            /* Espaço interno à esquerda */
-           text-align: left;              /* Redundante, mas seguro */
-        }
-    </style>
-""", unsafe_allow_html=True)
+# Configuração da Página
+st.set_page_config(page_title="CRUD Usuários", layout="wide")
+# Titulo da página
+st.title("🔄 Cadastro ou Atualização de Usuário")
 
 # 🧭 Barra lateral personalizada
 with st.sidebar:

@@ -3,7 +3,7 @@ import streamlit as st
 from db_connection import DatabaseConnection
 
 # Configuração da Página
-st.set_page_config(page_title="📚 CRUD Simulado", layout="wide")
+st.set_page_config(page_title="📚 CRUD Questões", layout="wide")
 # Titulo da página
 st.title("📚 Gerenciador de Perguntas do Simulado")
 
