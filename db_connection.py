@@ -24,41 +24,31 @@ class DatabaseConnection:
     def close(self):
         if self.conn:
             self.conn.close()
-    
-    def get_modulos(self):
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT DISTINCT PK_CO_PERGUNTA FROM TB_007_PERGUNTAS ORDER BY PK_CO_PERGUNTA")
-        modulos = [str(row[0]) for row in cursor.fetchall()]
-        cursor.close()
-        return modulos
-    
+  # Perguntas  
+  
     def get_filtros_perguntas(self):
         cursor = self.conn.cursor()
 
-        # Módulos (usando PK_CO_PERGUNTA como identificador)
         cursor.execute("SELECT DISTINCT PK_CO_PERGUNTA FROM TB_007_PERGUNTAS")
         modulos = [row[0] for row in cursor.fetchall()]
 
-        # Disciplinas
-        cursor.execute("SELECT DISTINCT NO_DISCIPLINA FROM TB_006_DISCIPLINA")
-        disciplinas = [row[0] for row in cursor.fetchall()]
+        cursor.execute("SELECT PK_CO_DISCIPLINA, NO_DISCIPLINA FROM TB_006_DISCIPLINA")
+        disciplinas = [{"id": row[0], "nome": row[1].strip()} for row in cursor.fetchall()]
 
-        # Tipos de descritor
-        cursor.execute("SELECT DISTINCT CO_TIPO FROM TB_005_DESCRITORES")
-        tipos_descritor = [row[0] for row in cursor.fetchall()]
+        cursor.execute("SELECT PK_ID_DESCRITOR, CO_TIPO FROM TB_005_DESCRITORES")
+        descritores = [{"id": row[0], "tipo": row[1].strip()} for row in cursor.fetchall()]
 
         return {
             "modulos": modulos,
             "disciplinas": disciplinas,
-            "tipos_descritor": tipos_descritor
+            "descritores": descritores
         }
-        
-    def get_perguntas(self, filtro_modulo=None, filtro_disciplina=None, filtro_tipo=None):
-        cursor = self.conn.cursor()
 
+    def get_perguntas(self, filtro_modulo=None, filtro_disciplina=None, filtro_descritor=None):
+        cursor = self.conn.cursor()
         query = """
             SELECT a.PK_CO_PERGUNTA, a.NO_PERGUNTA, a.DE_PERGUNTA,
-                b.NO_DISCIPLINA, c.CO_TIPO
+                   b.NO_DISCIPLINA, c.CO_TIPO
             FROM TB_007_PERGUNTAS AS a
             INNER JOIN TB_006_DISCIPLINA AS b ON a.FK_CO_DISCIPLINA = b.PK_CO_DISCIPLINA
             INNER JOIN TB_005_DESCRITORES AS c ON a.FK_CO_DESCRITOR = c.PK_ID_DESCRITOR
@@ -71,43 +61,40 @@ class DatabaseConnection:
             params.append(filtro_modulo)
 
         if filtro_disciplina:
-            query += " AND b.NO_DISCIPLINA = ?"
+            query += " AND b.PK_CO_DISCIPLINA = ?"
             params.append(filtro_disciplina)
 
-        if filtro_tipo:
-            query += " AND c.CO_TIPO = ?"
-            params.append(filtro_tipo)
+        if filtro_descritor:
+            query += " AND c.PK_ID_DESCRITOR = ?"
+            params.append(filtro_descritor)
 
         cursor.execute(query, params)
         rows = cursor.fetchall()
         col_names = [desc[0] for desc in cursor.description]
         return [dict(zip(col_names, row)) for row in rows]
 
-
-    def insert_pergunta(self, codigo, descricao):
+    def insert_pergunta(self, titulo, descricao, id_disciplina, id_descritor):
         cursor = self.conn.cursor()
-        cursor.execute(
-        "INSERT INTO TB_007_PERGUNTAS (CO_PERGUNTA, DE_PERGUNTA) VALUES (?, ?)",
-        codigo, descricao
-    )
+        cursor.execute("""
+            INSERT INTO TB_007_PERGUNTAS (NO_PERGUNTA, DE_PERGUNTA, FK_CO_DISCIPLINA, FK_CO_DESCRITOR)
+            VALUES (?, ?, ?, ?)
+        """, (titulo, descricao, id_disciplina, id_descritor))
         self.conn.commit()
-        cursor.close()
 
-    def update_pergunta(self, id, codigo, descricao):
+    def update_pergunta(self, id_pergunta, titulo, descricao, id_disciplina, id_descritor):
         cursor = self.conn.cursor()
-        cursor.execute(
-        "UPDATE TB_007_PERGUNTAS SET CO_PERGUNTA = ?, DE_PERGUNTA = ? WHERE PK_CO_PERGUNTA = ?",
-        codigo, descricao, id
-    )
+        cursor.execute("""
+            UPDATE TB_007_PERGUNTAS
+            SET NO_PERGUNTA = ?, DE_PERGUNTA = ?, FK_CO_DISCIPLINA = ?, FK_CO_DESCRITOR = ?
+            WHERE PK_CO_PERGUNTA = ?
+        """, (titulo, descricao, id_disciplina, id_descritor, id_pergunta))
         self.conn.commit()
-        cursor.close()
 
-
-    def delete_pergunta(self, id):
+    def delete_pergunta(self, id_pergunta):
         cursor = self.conn.cursor()
-        cursor.execute("DELETE FROM TB_007_PERGUNTAS WHERE PK_CO_PERGUNTA = ?", id)
+        cursor.execute("DELETE FROM TB_007_PERGUNTAS WHERE PK_CO_PERGUNTA = ?", (id_pergunta,))
         self.conn.commit()
-        cursor.close()
+
         
 # Respostas
     def get_respostas(self, pergunta_id=None):
@@ -292,3 +279,5 @@ class DatabaseConnection:
         """, (usuario_id, modulo_id, permitido, usuario_id, modulo_id, permitido))
         self.conn.commit()
         cursor.close()
+        
+        

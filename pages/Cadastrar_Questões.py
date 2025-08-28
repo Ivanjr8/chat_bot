@@ -20,169 +20,100 @@ except FileNotFoundError:
 db = DatabaseConnection()
 db.connect()
 
-# 🔍 Filtro por módulo, disciplina e tipo de descritor
-try:
-    filtros = db.get_filtros_perguntas() or {}
-except Exception as e:
-    st.sidebar.error(f"Erro ao carregar filtros: {e}")
-    filtros = {}
-
-# Garantindo que cada lista esteja presente e seja uma lista válida
-modulos = filtros.get("modulos") or []
-disciplinas = filtros.get("disciplinas") or []
-tipos_descritor = filtros.get("tipos_descritor") or []
-
-# Adicionando opções padrão
-modulo_opcoes = ["Todos"] + modulos
-disciplina_opcoes = ["Todas"] + disciplinas
-tipo_opcoes = ["Todos"] + tipos_descritor
-
-# 🎛️ Filtros na página principal
-st.subheader("🎛️ Filtros")
+# 🔍 Filtros
+filtros = db.get_filtros_perguntas()
+modulo_opcoes = ["Todos"] + filtros["modulos"]
+disciplina_opcoes = [{"id": None, "nome": "Todas"}] + filtros["disciplinas"]
+descritor_opcoes = [{"id": None, "tipo": "Todos"}] + filtros["descritores"]
 
 col1, col2, col3 = st.columns(3)
-
 with col1:
-    modulo_selecionado = st.selectbox("🔎 Filtrar por módulo", options=modulo_opcoes)
-
+    modulo_selecionado = st.selectbox("🔎 Módulo", options=modulo_opcoes)
 with col2:
-    disciplina_selecionada = st.selectbox("📘 Filtrar por disciplina", options=disciplina_opcoes)
-
+    disciplina_selecionada = st.selectbox("📘 Disciplina", options=disciplina_opcoes, format_func=lambda x: x["nome"])
 with col3:
-    tipo_selecionado = st.selectbox("🧩 Filtrar por tipo de descritor", options=tipo_opcoes)
+    descritor_selecionado = st.selectbox("🧩 Tipo de Descritor", options=descritor_opcoes, format_func=lambda x: x["tipo"])
 
-# 🧠 Normalizando os filtros
 filtro_modulo = None if modulo_selecionado == "Todos" else modulo_selecionado
-filtro_disciplina = None if disciplina_selecionada == "Todas" else disciplina_selecionada
-filtro_tipo = None if tipo_selecionado == "Todos" else tipo_selecionado
+filtro_disciplina = disciplina_selecionada["id"]
+filtro_descritor = descritor_selecionado["id"]
 
-# 🔎 Recupera perguntas com base nos filtros
-try:
-    perguntas = db.get_perguntas(
-        filtro_modulo=filtro_modulo,
-        filtro_disciplina=filtro_disciplina,
-        filtro_tipo=filtro_tipo
-    ) or []
-except Exception as e:
-    st.error(f"Erro ao buscar perguntas: {e}")
-    perguntas = []
+perguntas = db.get_perguntas(filtro_modulo, filtro_disciplina, filtro_descritor)
 
-# 📋 Visualização ou aviso
-if not perguntas:
-    st.warning("⚠️ Nenhuma pergunta encontrada com os filtros aplicados.")
-else:
-    st.subheader(f"📋 {len(perguntas)} pergunta(s) encontrada(s)")
-    for row in perguntas:
-        id_pergunta = row.get('PK_CO_PERGUNTA', 'ID desconhecido')
-        titulo = row.get('NO_PERGUNTA', '').strip() or 'Pergunta sem título'
-        descricao = row.get('DE_PERGUNTA', '').strip() or 'Sem descrição'
-        disciplina = row.get('NO_DISCIPLINA', '').strip() or 'Disciplina não informada'
-        tipo_descritor = row.get('CO_TIPO', '').strip() or 'Tipo não informado'
-
-        with st.expander(f"📝 {titulo}"):
-            st.markdown(f"""
-            **Descrição:** {descricao}  
-            **Disciplina:** {disciplina}  
-            **Tipo de Descritor:** {tipo_descritor}
-            """)
-
-# ➕ Formulário de edição/inserção
+# ➕ Formulário
 st.subheader("➕ Adicionar ou Editar Pergunta")
-
 with st.form("form_crud"):
     id_edicao = st.session_state.get("edit_id", None)
 
-    codigo_input = st.text_input(
-        "Pergunta",
-        value=st.session_state.get("edit_codigo", ""),
-        help="Código identificador da pergunta"
-    )
-    descricao_input = st.text_area(
-        "Texto",
-        value=st.session_state.get("edit_descricao", ""),
-        help="Descrição completa da pergunta"
-    )
+    titulo_input = st.text_input("Pergunta", value=st.session_state.get("edit_titulo", ""))
+    descricao_input = st.text_area("Descrição", value=st.session_state.get("edit_descricao", ""))
+
+    disciplina_input = st.selectbox("Disciplina", options=filtros["disciplinas"], format_func=lambda x: x["nome"],
+                                    index=next((i for i, d in enumerate(filtros["disciplinas"]) if d["id"] == st.session_state.get("edit_disciplina")), 0))
+    descritor_input = st.selectbox("Tipo de Descritor", options=filtros["descritores"], format_func=lambda x: x["tipo"],
+                                   index=next((i for i, d in enumerate(filtros["descritores"]) if d["id"] == st.session_state.get("edit_descritor")), 0))
 
     enviar = st.form_submit_button("💾 Salvar")
 
 if enviar:
-    if not codigo_input.strip() or not descricao_input.strip():
-        st.warning("⚠️ Código e descrição não podem estar vazios.")
+    if not titulo_input.strip() or not descricao_input.strip():
+        st.warning("⚠️ Título e descrição são obrigatórios.")
     else:
         try:
             if id_edicao:
-                db.update_pergunta(id_edicao, codigo_input, descricao_input)
+                db.update_pergunta(id_edicao, titulo_input, descricao_input, disciplina_input["id"], descritor_input["id"])
                 st.success("✅ Pergunta atualizada com sucesso!")
-
-                if "edit_id" in st.session_state:
-                    st.session_state["edit_id"] = None
             else:
-                db.insert_pergunta(codigo_input, descricao_input)
+                db.insert_pergunta(titulo_input, descricao_input, disciplina_input["id"], descritor_input["id"])
                 st.success("✅ Pergunta adicionada com sucesso!")
         except Exception as e:
-            st.error(f"❌ Erro ao salvar pergunta: {e}")
+            st.error(f"Erro ao salvar: {e}")
         finally:
-            if "edit_codigo" in st.session_state:
-                st.session_state["edit_codigo"] = ""
-            if "edit_descricao" in st.session_state:
-                st.session_state["edit_descricao"] = ""
+            for key in ["edit_id", "edit_titulo", "edit_descricao", "edit_disciplina", "edit_descritor"]:
+                st.session_state.pop(key, None)
             st.rerun()
-            
-# 📋 Visualização das perguntas
-st.subheader("📋 Perguntas cadastradas")
 
-if perguntas:
-    for row in perguntas:
-        id_pergunta = row.get('PK_CO_PERGUNTA', 'ID desconhecido')
-        titulo = row.get('NO_PERGUNTA', '').strip() or 'Pergunta sem título'
-        descricao = row.get('DE_PERGUNTA', '').strip() or 'Sem descrição'
-        disciplina = row.get('NO_DISCIPLINA', '').strip() or 'Disciplina não informada'
-        tipo_descritor = row.get('CO_TIPO', '').strip() or 'Tipo não informado'
+# 📋 Visualização
+st.subheader(f"📋 {len(perguntas)} pergunta(s) encontrada(s)")
+for row in perguntas:
+    id_pergunta = row.get('PK_CO_PERGUNTA')
+    titulo = row.get('NO_PERGUNTA', '').strip()
+    descricao = row.get('DE_PERGUNTA', '').strip()
+    disciplina = row.get('NO_DISCIPLINA', '').strip()
+    tipo_descritor = row.get('CO_TIPO', '').strip()
 
-        with st.expander(f"📝 {titulo}"):
-            st.markdown(f"""
-            **Descrição:** {descricao}  
-            **Disciplina:** {disciplina}  
-            **Tipo de Descritor:** {tipo_descritor}
-            """)
+    with st.expander(f"📝 {titulo}"):
+        st.markdown(f"**Descrição:** {descricao}  \n**Disciplina:** {disciplina}  \n**Tipo de Descritor:** {tipo_descritor}")
 
-            col1, col2 = st.columns(2)
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("✏️ Editar", key=f"editar_{id_pergunta}"):
+                st.session_state["edit_id"] = id_pergunta
+                st.session_state["edit_titulo"] = titulo
+                st.session_state["edit_descricao"] = descricao
+                st.session_state["edit_disciplina"] = next((d["id"] for d in filtros["disciplinas"] if d["nome"] == disciplina), None)
+                st.session_state["edit_descritor"] = next((d["id"] for d in filtros["descritores"] if d["tipo"] == tipo_descritor), None)
+                st.rerun()
 
-            with col1:
-                editar_key = f"editar_{id_pergunta}"
-                if st.button("✏️ Editar", key=editar_key):
-                    st.session_state["edit_id"] = id_pergunta
-                    st.session_state["edit_titulo"] = titulo
-                    st.session_state["edit_descricao"] = descricao
+        with col2:
+            if st.button("❌ Excluir", key=f"excluir_{id_pergunta}"):
+                st.session_state["confirm_delete_id"] = id_pergunta
+                st.rerun()
 
-            with col2:
-                excluir_key = f"excluir_{id_pergunta}"
-                if st.button("❌ Excluir", key=excluir_key):
-                    st.session_state["confirm_delete_id"] = id_pergunta
-                    st.session_state["confirm_delete_titulo"] = titulo
+    if st.session_state.get("confirm_delete_id") == id_pergunta:
+        st.warning(f"⚠️ Confirmar exclusão da pergunta: **{titulo}**")
+        confirmar, cancelar = st.columns(2)
+        with confirmar:
+            if st.button("✅ Confirmar", key=f"confirmar_{id_pergunta}"):
+                db.delete_pergunta(id_pergunta)
+                st.success("Pergunta excluída com sucesso.")
+                st.session_state.pop("confirm_delete_id", None)
+                st.rerun()
+        with cancelar:
+            if st.button("🚫 Cancelar", key=f"cancelar_{id_pergunta}"):
+                st.session_state.pop("confirm_delete_id", None)
+                st.rerun()
 
-        # Área de confirmação de exclusão
-        if st.session_state.get("confirm_delete_id") == id_pergunta:
-            st.warning(f"⚠️ Tem certeza que deseja excluir a pergunta: **{titulo}**?")
-            confirmar, cancelar = st.columns(2)
-
-            with confirmar:
-                if st.button("✅ Confirmar exclusão", key=f"confirmar_{id_pergunta}"):
-                    try:
-                        db.delete_pergunta(id_pergunta)
-                        st.success(f"Pergunta {id_pergunta} excluída com sucesso.")
-                        st.session_state.pop("confirm_delete_id", None)
-                        st.session_state.pop("confirm_delete_titulo", None)
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Erro ao excluir pergunta: {e}")
-
-            with cancelar:
-                if st.button("↩️ Cancelar", key=f"cancelar_{id_pergunta}"):
-                    st.session_state.pop("confirm_delete_id", None)
-                    st.session_state.pop("confirm_delete_titulo", None)
-else:
-    st.warning("⚠️ Nenhuma pergunta encontrada.")
 
 # 🔒 Encerrando conexão
 db.close()
