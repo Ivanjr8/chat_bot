@@ -100,8 +100,6 @@ if "usuario" in st.session_state:
             st.switch_page("pages/Cadastrar_Respostas.py")
         if st.button("🗂️   Cadastrar Usuários", key="btn_cadastrar_usuarios"):
             st.switch_page("pages/Cadastrar_Usuarios.py")
-        if st.button("🗂️   Matriz de Acesso", key="btn_matriz"):
-            st.switch_page("pages/acesso.py")
         if st.button("🗂️   Cadastrar_Escolas", key="btn_escolas"):
             st.switch_page("pages/Cadastrar_Escolas.py")
         
