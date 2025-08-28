@@ -42,6 +42,8 @@ else:
 # 📋 Visualização das perguntas
 st.subheader("📋 Perguntas cadastradas")
 
+# Remove a pergunta com ID 40 da exibição
+perguntas = [p for p in perguntas if p.get('PK_CO_PERGUNTA') != 40]
 if perguntas:
     for row in perguntas:
         id_pergunta = row.get('PK_CO_PERGUNTA', 'ID desconhecido')
@@ -166,11 +168,11 @@ with st.sidebar:
         
         # Botão para sair
         if st.button("🚪 Sair"):
-    # Remove dados de sessão
+        # Remove dados de sessão
             for key in ["usuario", "perfil", "usuario_id"]:
                 st.session_state.pop(key, None)
-    # Redireciona para a página inicial (gemini.py)
+               # Redireciona para a página inicial (gemini.py)
                 st.switch_page("gemini.py")
-            # Reinicia a aplicação
+               # Reinicia a aplicação
                 st.rerun()
 
