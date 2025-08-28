@@ -311,5 +311,41 @@ class DatabaseConnection:
         """, (usuario_id, modulo_id, permitido, usuario_id, modulo_id, permitido))
         self.conn.commit()
         cursor.close()
+
+# Escolas        
+    def get_escolas(self, filtro_nome=None):
+        cursor = self.conn.cursor()
+        query = "SELECT PK_ID_ESCOLA, NO_ESCOLA FROM TB_002_ESCOLAS WHERE 1=1"
+        params = []
+        if filtro_nome:
+            query += " AND NO_ESCOLA LIKE ?"
+            params.append(f"%{filtro_nome}%")
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        return [dict(zip([column[0] for column in cursor.description], row)) for row in rows]
+
+    def insert_escola(self, nome_escola):
+        cursor = self.conn.cursor()
+        query = "INSERT INTO TB_002_ESCOLAS (NO_ESCOLA) VALUES (?)"
+        cursor.execute(query, (nome_escola,))
+        cursor.execute("SELECT SCOPE_IDENTITY()")
+        escola_id = cursor.fetchone()[0]
+        self.conn.commit()
+        return escola_id
+
+    def update_escola(self, escola_id, novo_nome):
+        cursor = self.conn.cursor()
+        query = "UPDATE TB_002_ESCOLAS SET NO_ESCOLA = ? WHERE PK_ID_ESCOLA = ?"
+        cursor.execute(query, (novo_nome, escola_id))
+        self.conn.commit()
+        return cursor.rowcount > 0
+
+    def delete_escola(self, escola_id):
+        cursor = self.conn.cursor()
+        query = "DELETE FROM TB_002_ESCOLAS WHERE PK_ID_ESCOLA = ?"
+        cursor.execute(query, (escola_id,))
+        self.conn.commit()
+        return cursor.rowcount > 0
+
         
         
