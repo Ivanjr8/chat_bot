@@ -326,9 +326,12 @@ class DatabaseConnection:
 
     def insert_escola(self, nome_escola):
         cursor = self.conn.cursor()
-        query = "INSERT INTO TB_002_ESCOLAS (NO_ESCOLA) VALUES (?)"
+        query = """
+            INSERT INTO TB_002_ESCOLAS (NO_ESCOLA)
+            OUTPUT INSERTED.PK_ID_ESCOLA
+            VALUES (?)
+        """
         cursor.execute(query, (nome_escola,))
-        cursor.execute("SELECT SCOPE_IDENTITY()")
         escola_id = cursor.fetchone()[0]
         self.conn.commit()
         return escola_id

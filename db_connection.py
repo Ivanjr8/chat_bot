@@ -326,10 +326,15 @@ class DatabaseConnection:
 
     def insert_escola(self, nome_escola):
         cursor = self.conn.cursor()
-        query = "INSERT INTO TB_002_ESCOLAS (NO_ESCOLA) VALUES (?)"
+        query = """
+            INSERT INTO TB_002_ESCOLAS (NO_ESCOLA)
+            OUTPUT INSERTED.PK_ID_ESCOLA
+            VALUES (?)
+        """
         cursor.execute(query, (nome_escola,))
+        escola_id = cursor.fetchone()[0]
         self.conn.commit()
-        return cursor.lastrowid
+        return escola_id
 
     def update_escola(self, escola_id, novo_nome):
         cursor = self.conn.cursor()
