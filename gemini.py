@@ -147,11 +147,12 @@ if "usuario" in st.session_state:
         
         # Botão para sair
         if st.button("🚪 Sair"):
-            # Remove dados de sessão
-            for key in ["usuario", "perfil"]:
-                st.session_state.pop(key, None)
-            # Reinicia a aplicação
-                st.rerun()
+        # Remove dados de sessão
+            for key in ["usuario", "perfil", "usuario_id"]:
+             st.session_state.pop(key, None)
+        # Redireciona para a página inicial (gemini.py)
+        st.switch_page("gemini.py")
+
 
         with open("assets/style.css") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
