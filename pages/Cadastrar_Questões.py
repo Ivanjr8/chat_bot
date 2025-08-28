@@ -42,43 +42,42 @@ else:
 # 📋 Visualização das perguntas
 st.subheader("📋 Perguntas cadastradas")
 
+# 📋 Visualização das perguntas
+st.subheader("📋 Perguntas cadastradas")
+
 if perguntas:
     for row in perguntas:
-        codigo = row['CO_PERGUNTA']
-        descricao = row['DE_PERGUNTA']
+        # Acessa os campos com segurança
+        id_pergunta = row.get('PK_CO_PERGUNTA', 'ID desconhecido')
+        codigo = row.get('CO_PERGUNTA', '').strip() or 'Sem código'
+        descricao = row.get('DE_PERGUNTA', '').strip() or 'Sem descrição'
 
-        codigo_formatado = codigo.strip() if codigo else "Sem código"
-        descricao_formatada = descricao.strip() if descricao else "Sem descrição"
+        with st.expander(f"ID {id_pergunta} - Código {codigo}"):
+            st.write(descricao)
 
-        with st.expander(f"ID {row['PK_CO_PERGUNTA']} - Código {codigo_formatado}"):
-            st.markdown(f"**Descrição:** {descricao_formatada}")
             col1, col2 = st.columns(2)
 
             with col1:
-                editar_key = f"editar_{row['PK_CO_PERGUNTA']}"
+                editar_key = f"editar_{id_pergunta}"
                 if st.button(f"✏️ Editar", key=editar_key):
                     if "edit_id" not in st.session_state:
-                        st.session_state["edit_id"] = row['PK_CO_PERGUNTA']
+                        st.session_state["edit_id"] = id_pergunta
                     if "edit_codigo" not in st.session_state:
-                        st.session_state["edit_codigo"] = codigo_formatado
+                        st.session_state["edit_codigo"] = codigo
                     if "edit_descricao" not in st.session_state:
-                        st.session_state["edit_descricao"] = descricao_formatada
+                        st.session_state["edit_descricao"] = descricao
 
             with col2:
-                excluir_key = f"excluir_{row['PK_CO_PERGUNTA']}"
+                excluir_key = f"excluir_{id_pergunta}"
                 if st.button(f"❌ Excluir", key=excluir_key):
-                    with st.modal(f"Tem certeza que deseja excluir a pergunta {row['PK_CO_PERGUNTA']}?"):
-                        confirmar = st.button("Confirmar exclusão")
-                        cancelar = st.button("Cancelar")
-
-                        if confirmar:
-                            db.delete_pergunta(row['PK_CO_PERGUNTA'])
-                            st.success(f"Pergunta {row['PK_CO_PERGUNTA']} excluída com sucesso.")
-                            st.rerun()
-                        elif cancelar:
-                            st.info("Exclusão cancelada.")
+                    try:
+                        db.delete_pergunta(id_pergunta)
+                        st.success(f"Pergunta {id_pergunta} excluída com sucesso.")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Erro ao excluir pergunta: {e}")
 else:
-    st.warning("⚠️ Nenhuma pergunta encontrada para o filtro atual.")
+    st.warning("⚠️ Nenhuma pergunta encontrada.")
 
 # ➕ Formulário de edição/inserção
 st.subheader("➕ Adicionar ou Editar Pergunta")
