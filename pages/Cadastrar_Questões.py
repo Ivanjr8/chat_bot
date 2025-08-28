@@ -28,7 +28,7 @@ descritor_opcoes = [{"id": None, "tipo": "Todos"}] + filtros["descritores"]
 
 col1, col2, col3 = st.columns(3)
 with col1:
-    modulo_selecionado = st.selectbox("🔎 Módulo", options=modulo_opcoes)
+    modulo_selecionado = st.selectbox("🔎 Numero da Questão", options=modulo_opcoes)
 with col2:
     disciplina_selecionada = st.selectbox("📘 Disciplina", options=disciplina_opcoes, format_func=lambda x: x["nome"])
 with col3:
