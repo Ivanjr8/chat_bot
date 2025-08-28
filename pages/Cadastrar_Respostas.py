@@ -61,8 +61,8 @@ if perguntas:
     pergunta_opcoes = {}
     for p in perguntas:
         pk = p.get('PK_CO_PERGUNTA', 'ID desconhecido')
-        codigo = p.get('CO_PERGUNTA', '').strip() if p.get('CO_PERGUNTA') else 'Sem código'
-        label = f"{pk} - {codigo}"
+        titulo = p.get('NO_PERGUNTA', '').strip() if p.get('NO_PERGUNTA') else 'Pergunta sem título'
+        label = f"{pk} - {titulo}"
         pergunta_opcoes[label] = pk
 
     pergunta_selecionada = st.selectbox("Pergunta relacionada", list(pergunta_opcoes.keys()))
