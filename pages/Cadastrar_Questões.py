@@ -47,35 +47,48 @@ st.subheader("📋 Perguntas cadastradas")
 
 if perguntas:
     for row in perguntas:
-        # Acessa os campos com segurança
         id_pergunta = row.get('PK_CO_PERGUNTA', 'ID desconhecido')
-        codigo = row.get('CO_PERGUNTA', '').strip() or 'Sem código'
+        titulo = row.get('NO_PERGUNTA', '').strip() or 'Pergunta sem título'
         descricao = row.get('DE_PERGUNTA', '').strip() or 'Sem descrição'
 
-        with st.expander(f"ID {id_pergunta} - Código {codigo}"):
-            st.write(descricao)
+        with st.expander(f"📝 {titulo}"):
+            st.markdown(f"**Descrição:** {descricao}")
 
             col1, col2 = st.columns(2)
 
             with col1:
                 editar_key = f"editar_{id_pergunta}"
-                if st.button(f"✏️ Editar", key=editar_key):
-                    if "edit_id" not in st.session_state:
-                        st.session_state["edit_id"] = id_pergunta
-                    if "edit_codigo" not in st.session_state:
-                        st.session_state["edit_codigo"] = codigo
-                    if "edit_descricao" not in st.session_state:
-                        st.session_state["edit_descricao"] = descricao
+                if st.button("✏️ Editar", key=editar_key):
+                    st.session_state["edit_id"] = id_pergunta
+                    st.session_state["edit_titulo"] = titulo
+                    st.session_state["edit_descricao"] = descricao
 
             with col2:
                 excluir_key = f"excluir_{id_pergunta}"
-                if st.button(f"❌ Excluir", key=excluir_key):
+                if st.button("❌ Excluir", key=excluir_key):
+                    st.session_state["confirm_delete_id"] = id_pergunta
+                    st.session_state["confirm_delete_titulo"] = titulo
+
+        # Área de confirmação de exclusão
+        if st.session_state.get("confirm_delete_id") == id_pergunta:
+            st.warning(f"⚠️ Tem certeza que deseja excluir a pergunta: **{titulo}**?")
+            confirmar, cancelar = st.columns(2)
+
+            with confirmar:
+                if st.button("✅ Confirmar exclusão", key=f"confirmar_{id_pergunta}"):
                     try:
                         db.delete_pergunta(id_pergunta)
                         st.success(f"Pergunta {id_pergunta} excluída com sucesso.")
+                        st.session_state.pop("confirm_delete_id", None)
+                        st.session_state.pop("confirm_delete_titulo", None)
                         st.rerun()
                     except Exception as e:
                         st.error(f"Erro ao excluir pergunta: {e}")
+
+            with cancelar:
+                if st.button("↩️ Cancelar", key=f"cancelar_{id_pergunta}"):
+                    st.session_state.pop("confirm_delete_id", None)
+                    st.session_state.pop("confirm_delete_titulo", None)
 else:
     st.warning("⚠️ Nenhuma pergunta encontrada.")
 
