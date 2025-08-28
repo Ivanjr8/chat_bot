@@ -40,14 +40,6 @@ filtro_descritor = descritor_selecionado["id"]
 
 perguntas = db.get_perguntas(filtro_modulo, filtro_disciplina, filtro_descritor)
 
-if not perguntas:
-    st.info("Nenhuma pergunta encontrada com os filtros selecionados.")
-else:
-    for pergunta in perguntas:
-        st.write(f"Pergunta: {pergunta['no_pergunta']}")
-        # Continue com o restante da lógica
-
-
 # ➕ Formulário
 st.subheader("➕ Adicionar ou Editar Pergunta")
 with st.form("form_crud"):
