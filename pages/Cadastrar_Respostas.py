@@ -75,7 +75,15 @@ filtro_disciplina = disciplina_selecionada["id"]
 filtro_descritor = descritor_selecionado["id"]
 
 # 🔍 Buscar respostas filtradas
-respostas = db.get_respostas_com_filtros(filtro_modulo, filtro_disciplina, filtro_descritor) or []
+respostas = db.get_respostas_com_filtros(filtro_modulo, filtro_disciplina, filtro_descritor)
+
+if not respostas:
+    st.warning("Nenhuma resposta encontrada com os filtros selecionados.")
+else:
+    # Aqui você continua com a exibição das respostas
+    for resposta in respostas:
+        st.write(resposta)
+
 
 # ➕ Cadastro de múltiplas respostas
 st.subheader("➕ Adicionar 4 Respostas para uma Pergunta")
