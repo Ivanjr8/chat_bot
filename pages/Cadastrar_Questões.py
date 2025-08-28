@@ -89,9 +89,15 @@ if perguntas:
         id_pergunta = row.get('PK_CO_PERGUNTA', 'ID desconhecido')
         titulo = row.get('NO_PERGUNTA', '').strip() or 'Pergunta sem título'
         descricao = row.get('DE_PERGUNTA', '').strip() or 'Sem descrição'
+        disciplina = row.get('NO_DISCIPLINA', '').strip() or 'Disciplina não informada'
+        tipo_descritor = row.get('CO_TIPO', '').strip() or 'Tipo não informado'
 
         with st.expander(f"📝 {titulo}"):
-            st.markdown(f"**Descrição:** {descricao}")
+            st.markdown(f"""
+            **Descrição:** {descricao}  
+            **Disciplina:** {disciplina}  
+            **Tipo de Descritor:** {tipo_descritor}
+            """)
 
             col1, col2 = st.columns(2)
 

@@ -35,17 +35,27 @@ class DatabaseConnection:
     def get_perguntas(self, filtro_modulo=None):
         cursor = self.conn.cursor()
         if filtro_modulo:
-            cursor.execute(
-                "SELECT PK_CO_PERGUNTA, NO_PERGUNTA, DE_PERGUNTA FROM TB_007_PERGUNTAS WHERE PK_CO_PERGUNTA = ?",
-                (filtro_modulo,)
-            )
+            cursor.execute("""
+                SELECT a.PK_CO_PERGUNTA, a.NO_PERGUNTA, a.DE_PERGUNTA,
+                    b.NO_DISCIPLINA, c.CO_TIPO
+                FROM TB_007_PERGUNTAS AS a
+                INNER JOIN TB_006_DISCIPLINA AS b ON a.FK_CO_DISCIPLINA = b.PK_CO_DISCIPLINA
+                INNER JOIN TB_005_DESCRITORES AS c ON a.FK_CO_DESCRITOR = c.PK_ID_DESCRITOR
+                WHERE a.PK_CO_PERGUNTA = ?
+            """, (filtro_modulo,))
         else:
-            cursor.execute("SELECT PK_CO_PERGUNTA, NO_PERGUNTA, DE_PERGUNTA FROM TB_007_PERGUNTAS")
+            cursor.execute("""
+                SELECT a.PK_CO_PERGUNTA, a.NO_PERGUNTA, a.DE_PERGUNTA,
+                    b.NO_DISCIPLINA, c.CO_TIPO
+                FROM TB_007_PERGUNTAS AS a
+                INNER JOIN TB_006_DISCIPLINA AS b ON a.FK_CO_DISCIPLINA = b.PK_CO_DISCIPLINA
+                INNER JOIN TB_005_DESCRITORES AS c ON a.FK_CO_DESCRITOR = c.PK_ID_DESCRITOR
+            """)
 
-        columns = [column[0] for column in cursor.description]
-        rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
-        cursor.close()
-        return rows
+        rows = cursor.fetchall()
+        col_names = [desc[0] for desc in cursor.description]
+        perguntas = [dict(zip(col_names, row)) for row in rows]
+        return perguntas
 
 
     def insert_pergunta(self, codigo, descricao):
