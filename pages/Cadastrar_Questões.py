@@ -82,27 +82,45 @@ else:
 
 # ➕ Formulário de edição/inserção
 st.subheader("➕ Adicionar ou Editar Pergunta")
+
 with st.form("form_crud"):
     id_edicao = st.session_state.get("edit_id", None)
-    codigo_input = st.text_input("Pergunta", value=st.session_state.get("edit_codigo", ""))
-    descricao_input = st.text_area("Texto", value=st.session_state.get("edit_descricao", ""))
-    
+
+    codigo_input = st.text_input(
+        "Pergunta",
+        value=st.session_state.get("edit_codigo", ""),
+        help="Código identificador da pergunta"
+    )
+    descricao_input = st.text_area(
+        "Texto",
+        value=st.session_state.get("edit_descricao", ""),
+        help="Descrição completa da pergunta"
+    )
+
     enviar = st.form_submit_button("💾 Salvar")
 
 if enviar:
     if not codigo_input.strip() or not descricao_input.strip():
         st.warning("⚠️ Código e descrição não podem estar vazios.")
     else:
-        if id_edicao:
-            db.update_pergunta(id_edicao, codigo_input, descricao_input)
-            st.success("✅ Pergunta atualizada com sucesso!")
-            st.session_state["edit_id"] = None
-        else:
-            db.insert_pergunta(codigo_input, descricao_input)
-            st.success("✅ Pergunta adicionada com sucesso!")
-        st.session_state["edit_codigo"] = ""
-        st.session_state["edit_descricao"] = ""
-        st.rerun()
+        try:
+            if id_edicao:
+                db.update_pergunta(id_edicao, codigo_input, descricao_input)
+                st.success("✅ Pergunta atualizada com sucesso!")
+
+                if "edit_id" in st.session_state:
+                    st.session_state["edit_id"] = None
+            else:
+                db.insert_pergunta(codigo_input, descricao_input)
+                st.success("✅ Pergunta adicionada com sucesso!")
+        except Exception as e:
+            st.error(f"❌ Erro ao salvar pergunta: {e}")
+        finally:
+            if "edit_codigo" in st.session_state:
+                st.session_state["edit_codigo"] = ""
+            if "edit_descricao" in st.session_state:
+                st.session_state["edit_descricao"] = ""
+            st.rerun()
 
 # 🔒 Encerrando conexão
 db.close()

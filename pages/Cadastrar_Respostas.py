@@ -10,7 +10,6 @@ st.set_page_config(page_title="📚 CRUD Respostas", layout="wide")
 # Titulo da página
 st.title("📝 Cadastro de Respostas")
 
-
 # 🧭 Barra lateral personalizada
 with st.sidebar:
         if "usuario" in st.session_state and "perfil" in st.session_state:
@@ -56,50 +55,107 @@ db = DatabaseConnection()
 db.connect()
 
 # 🔍 Selecionar pergunta existente
-perguntas = db.get_perguntas()
-pergunta_opcoes = {f"{p['PK_CO_PERGUNTA']} - {p['CO_PERGUNTA'].strip()}": p['PK_CO_PERGUNTA'] for p in perguntas}
-pergunta_selecionada = st.selectbox("Pergunta relacionada", list(pergunta_opcoes.keys()))
-pergunta_id = pergunta_opcoes[pergunta_selecionada]
+perguntas = db.get_perguntas() or []
+
+if perguntas:
+    pergunta_opcoes = {}
+    for p in perguntas:
+        pk = p.get('PK_CO_PERGUNTA', 'ID desconhecido')
+        codigo = p.get('CO_PERGUNTA', '').strip() if p.get('CO_PERGUNTA') else 'Sem código'
+        label = f"{pk} - {codigo}"
+        pergunta_opcoes[label] = pk
+
+    pergunta_selecionada = st.selectbox("Pergunta relacionada", list(pergunta_opcoes.keys()))
+    pergunta_id = pergunta_opcoes.get(pergunta_selecionada)
+    st.markdown(f"**Pergunta selecionada:** {pergunta_selecionada}")
+else:
+    st.warning("⚠️ Nenhuma pergunta disponível para seleção.")
+    pergunta_id = None
 
 # 📋 Listar respostas existentes
-respostas = db.get_respostas(pergunta_id)
+respostas = db.get_respostas(pergunta_id) or []
+
 st.subheader("📋 Respostas cadastradas")
-for r in respostas:
-    with st.expander(f"ID {r['CO_RESPOSTA']} - {r['NO_RESPOSTA'].strip()}"):
-        st.write(f"✔️ Correta: {'Sim' if r['CO_RESPOSTA_CORRETA'] else 'Não'}")
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button(f"✏️ Editar {r['CO_RESPOSTA']}", key=f"edit_{r['CO_RESPOSTA']}"):
-                st.session_state["edit_id"] = r['CO_RESPOSTA']
-                st.session_state["edit_texto"] = r['NO_RESPOSTA'].strip()
-                st.session_state["edit_correta"] = r['CO_RESPOSTA_CORRETA']
-        with col2:
-            if st.button(f"❌ Excluir {r['CO_RESPOSTA']}", key=f"del_{r['CO_RESPOSTA']}"):
-                db.delete_resposta(r['CO_RESPOSTA'])
-                st.success("Resposta excluída com sucesso.")
-                st.rerun()
+
+if respostas:
+    for r in respostas:
+        # Proteção contra campos ausentes ou None
+        id_resposta = r.get('CO_RESPOSTA', 'ID desconhecido')
+        texto_resposta = r.get('NO_RESPOSTA', '').strip() or 'Sem texto'
+        correta = r.get('CO_RESPOSTA_CORRETA', False)
+
+        with st.expander(f"ID {id_resposta} - {texto_resposta}"):
+            st.write(f"✔️ Correta: {'Sim' if correta else 'Não'}")
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                editar_key = f"edit_{id_resposta}"
+                if st.button(f"✏️ Editar", key=editar_key):
+                    if "edit_id" not in st.session_state:
+                        st.session_state["edit_id"] = id_resposta
+                    if "edit_texto" not in st.session_state:
+                        st.session_state["edit_texto"] = texto_resposta
+                    if "edit_correta" not in st.session_state:
+                        st.session_state["edit_correta"] = correta
+
+            with col2:
+                excluir_key = f"del_{id_resposta}"
+                if st.button(f"❌ Excluir", key=excluir_key):
+                    with st.modal(f"Tem certeza que deseja excluir a resposta {id_resposta}?"):
+                        confirmar = st.button("Confirmar exclusão", key=f"confirma_{id_resposta}")
+                        cancelar = st.button("Cancelar", key=f"cancela_{id_resposta}")
+
+                        if confirmar:
+                            db.delete_resposta(id_resposta)
+                            st.success("Resposta excluída com sucesso.")
+                            st.rerun()
+                        elif cancelar:
+                            st.info("Exclusão cancelada.")
+else:
+    st.warning("⚠️ Nenhuma resposta cadastrada para esta pergunta.")
 
 # ➕ Formulário de inserção de múltiplas respostas
 st.subheader("➕ Adicionar 4 Respostas para a Pergunta Selecionada")
 
 with st.form("form_respostas_multiplas"):
     respostas = []
+
     for i in range(1, 5):
         st.markdown(f"**Resposta {i}**")
-        texto = st.text_input(f"Texto da Resposta {i}", key=f"texto_{i}")
-        correta = st.checkbox("É a resposta correta?", key=f"correta_{i}")
+
+        texto_key = f"texto_{i}"
+        correta_key = f"correta_{i}"
+
+        # Evita sobrescrever session_state
+        if texto_key not in st.session_state:
+            st.session_state[texto_key] = ""
+        if correta_key not in st.session_state:
+            st.session_state[correta_key] = False
+
+        texto = st.text_input(f"Texto da Resposta {i}", key=texto_key)
+        correta = st.checkbox("É a resposta correta?", key=correta_key)
+
         respostas.append({"texto": texto, "correta": correta})
 
     enviar = st.form_submit_button("💾 Salvar todas")
 
 if enviar:
-    erros = [r for r in respostas if not r["texto"].strip()]
-    if erros:
+    # Validação de campos obrigatórios
+    respostas_invalidas = [r for r in respostas if not r["texto"].strip()]
+    respostas_corretas = [r for r in respostas if r["correta"]]
+
+    if respostas_invalidas:
         st.warning("⚠️ Todas as respostas devem ter texto preenchido.")
+    elif len(respostas_corretas) != 1:
+        st.warning("⚠️ Deve haver exatamente uma resposta marcada como correta.")
     else:
-        for r in respostas:
-            db.insert_resposta(r["texto"], pergunta_id, r["correta"])
-        st.success("✅ 4 respostas foram adicionadas com sucesso!")
-        st.rerun()
+        try:
+            for r in respostas:
+                db.insert_resposta(r["texto"].strip(), pergunta_id, r["correta"])
+            st.success("✅ 4 respostas foram adicionadas com sucesso!")
+            st.rerun()
+        except Exception as e:
+            st.error(f"❌ Erro ao salvar respostas: {e}")
 
 db.close()
