@@ -176,12 +176,12 @@ class DatabaseConnection:
         finally:
             cursor.close()
             
-    def get_modulos(self):
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT id, nome FROM TB_011_MODULOS")
-        modulos = [{"id": row[0], "nome": row[1]} for row in cursor.fetchall()]
-        cursor.close()
-        return modulos
+   # def get_modulos(self):
+    #    cursor = self.conn.cursor()
+    #    cursor.execute("SELECT id, nome FROM TB_011_MODULOS")
+    #    modulos = [{"id": row[0], "nome": row[1]} for row in cursor.fetchall()]
+   #     cursor.close()
+    #    return modulos
 
     def get_acessos_usuario(self, usuario_id):
         cursor = self.conn.cursor()
