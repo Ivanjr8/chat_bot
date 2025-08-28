@@ -91,7 +91,7 @@ def conectar_banco():
     try:
         conexao = pyodbc.connect(
             "DRIVER={ODBC Driver 17 for SQL Server};"
-            "SERVER=myfreesqldbserver-0101.database.windows.net;"
+            "SERVER=srvappmba.database.windows.net;"
             "DATABASE=myFreeDB;"
             "UID=ivan;"
             "PWD=MigMat01#!;"
