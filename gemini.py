@@ -151,7 +151,7 @@ if "usuario" in st.session_state:
             for key in ["usuario", "perfil", "usuario_id"]:
                 st.session_state.pop(key, None)
     # Redireciona para a página inicial (gemini.py)
-                st.switch_page("gemini")
+                st.switch_page("gemini.py")
             # Reinicia a aplicação
                 st.rerun()
 
