@@ -3,8 +3,12 @@ import streamlit as st
 from streamlit_modal import Modal
 from db_connection import DatabaseConnection
 
+# Configuração da Página
 st.set_page_config(page_title="Simulado SAEB", page_icon="🧠", layout="wide")
-# Estilo personalizado
+# Titulo da página
+# st.title("📚 Gerenciador de Perguntas do Simulado") # adicionar título e smile
+
+# 🔧  Estilo personalizado
 try:
     with open("assets/style.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
