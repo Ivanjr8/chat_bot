@@ -97,6 +97,38 @@ class DatabaseConnection:
 
         
 # Respostas
+
+    def get_respostas_com_filtros(self, modulo=None, disciplina=None, descritor=None):
+        cursor = self.conn.cursor()
+        query = """
+            SELECT b.pk_co_pergunta, b.no_pergunta, b.de_pergunta,
+                a.co_resposta, a.no_resposta, a.no_alternativa, a.co_resposta_correta,
+                c.co_tipo, d.pk_co_disciplina, d.no_disciplina
+            FROM TB_008_RESPOSTAS AS a
+            INNER JOIN TB_007_PERGUNTAS AS b ON a.fk_co_pergunta = b.pk_co_pergunta
+            INNER JOIN TB_005_DESCRITORES AS c ON b.fk_co_descritor = c.pk_id_descritor
+            INNER JOIN TB_006_DISCIPLINA AS d ON b.fk_co_disciplina = d.pk_co_disciplina
+            WHERE 1=1
+        """
+        params = []
+
+        if modulo:
+            query += " AND b.pk_co_pergunta = ?"
+            params.append(modulo)
+        if disciplina:
+            query += " AND d.pk_co_disciplina = ?"
+            params.append(disciplina)
+        if descritor:
+            query += " AND c.pk_id_descritor = ?"
+            params.append(descritor)
+
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        col_names = [desc[0] for desc in cursor.description]
+        return [dict(zip(col_names, row)) for row in rows]
+
+
+
     def get_respostas(self, pergunta_id=None):
         cursor = self.conn.cursor()
         if pergunta_id:
