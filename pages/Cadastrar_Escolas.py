@@ -37,15 +37,20 @@ else:
                     sucesso = db.update_escola(escola['PK_ID_ESCOLA'], novo_nome)
                     if sucesso:
                         st.success("Escola atualizada com sucesso!")
+                        st.rerun()
                     else:
                         st.error("Erro ao atualizar.")
+                        
             with col2:
                 if st.button("🗑️ Excluir", key=f"delete_{escola['PK_ID_ESCOLA']}"):
                     sucesso = db.delete_escola(escola['PK_ID_ESCOLA'])
                     if sucesso:
                         st.success("Escola excluída.")
+                        st.rerun()
                     else:
                         st.error("Erro ao excluir.")
+                      
+                        
 
 st.markdown("---")
 
@@ -57,8 +62,10 @@ if st.button("➕ Cadastrar"):
     if novo_nome_escola.strip():
         db.insert_escola(novo_nome_escola.strip())
         st.success("Escola cadastrada com sucesso!")
+        st.rerun()
     else:
         st.error("O nome da escola não pode estar vazio.")
+       
         
 # 🔒 Encerrando conexão
 db.close()
