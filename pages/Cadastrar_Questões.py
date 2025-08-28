@@ -37,24 +37,54 @@ modulo_opcoes = ["Todos"] + modulos
 disciplina_opcoes = ["Todas"] + disciplinas
 tipo_opcoes = ["Todos"] + tipos_descritor
 
-# Criando os filtros na barra lateral
-modulo_selecionado = st.sidebar.selectbox("🔎 Filtrar por módulo", options=modulo_opcoes)
-disciplina_selecionada = st.sidebar.selectbox("📘 Filtrar por disciplina", options=disciplina_opcoes)
-tipo_selecionado = st.sidebar.selectbox("🧩 Filtrar por tipo de descritor", options=tipo_opcoes)
+# 🎛️ Filtros na página principal
+st.subheader("🎛️ Filtros")
 
-# 🔎 Recupera perguntas com base no filtro
-if modulo_selecionado != "Todos":
-    perguntas = db.get_perguntas(modulo_selecionado) or []
-else:
-    perguntas = db.get_perguntas() or []
+col1, col2, col3 = st.columns(3)
 
-# ⚠️ Tratamento para lista vazia
+with col1:
+    modulo_selecionado = st.selectbox("🔎 Filtrar por módulo", options=modulo_opcoes)
+
+with col2:
+    disciplina_selecionada = st.selectbox("📘 Filtrar por disciplina", options=disciplina_opcoes)
+
+with col3:
+    tipo_selecionado = st.selectbox("🧩 Filtrar por tipo de descritor", options=tipo_opcoes)
+
+# 🧠 Normalizando os filtros
+filtro_modulo = None if modulo_selecionado == "Todos" else modulo_selecionado
+filtro_disciplina = None if disciplina_selecionada == "Todas" else disciplina_selecionada
+filtro_tipo = None if tipo_selecionado == "Todos" else tipo_selecionado
+
+# 🔎 Recupera perguntas com base nos filtros
+try:
+    perguntas = db.get_perguntas(
+        filtro_modulo=filtro_modulo,
+        filtro_disciplina=filtro_disciplina,
+        filtro_tipo=filtro_tipo
+    ) or []
+except Exception as e:
+    st.error(f"Erro ao buscar perguntas: {e}")
+    perguntas = []
+
+# 📋 Visualização ou aviso
 if not perguntas:
-    st.warning("Nenhuma pergunta encontrada para o módulo selecionado.")
-#else:
-    # Aqui você pode exibir as perguntas como quiser
-    #for pergunta in perguntas:
-        #st.write(f"• {pergunta}")
+    st.warning("⚠️ Nenhuma pergunta encontrada com os filtros aplicados.")
+else:
+    st.subheader(f"📋 {len(perguntas)} pergunta(s) encontrada(s)")
+    for row in perguntas:
+        id_pergunta = row.get('PK_CO_PERGUNTA', 'ID desconhecido')
+        titulo = row.get('NO_PERGUNTA', '').strip() or 'Pergunta sem título'
+        descricao = row.get('DE_PERGUNTA', '').strip() or 'Sem descrição'
+        disciplina = row.get('NO_DISCIPLINA', '').strip() or 'Disciplina não informada'
+        tipo_descritor = row.get('CO_TIPO', '').strip() or 'Tipo não informado'
+
+        with st.expander(f"📝 {titulo}"):
+            st.markdown(f"""
+            **Descrição:** {descricao}  
+            **Disciplina:** {disciplina}  
+            **Tipo de Descritor:** {tipo_descritor}
+            """)
 
 # ➕ Formulário de edição/inserção
 st.subheader("➕ Adicionar ou Editar Pergunta")
