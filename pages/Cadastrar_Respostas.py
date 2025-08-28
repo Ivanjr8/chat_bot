@@ -72,6 +72,49 @@ else:
     st.warning("⚠️ Nenhuma pergunta disponível para seleção.")
     pergunta_id = None
 
+# ➕ Formulário de inserção de múltiplas respostas
+st.subheader("➕ Adicionar 4 Respostas para a Pergunta Selecionada")
+
+with st.form("form_respostas_multiplas"):
+    respostas = []
+
+    for i in range(1, 5):
+        st.markdown(f"**Resposta {i}**")
+
+        texto_key = f"texto_{i}"
+        correta_key = f"correta_{i}"
+
+        # Evita sobrescrever session_state
+        if texto_key not in st.session_state:
+            st.session_state[texto_key] = ""
+        if correta_key not in st.session_state:
+            st.session_state[correta_key] = False
+
+        texto = st.text_input(f"Texto da Resposta {i}", key=texto_key)
+        correta = st.checkbox("É a resposta correta?", key=correta_key)
+
+        respostas.append({"texto": texto, "correta": correta})
+
+    enviar = st.form_submit_button("💾 Salvar todas")
+
+if enviar:
+    # Validação de campos obrigatórios
+    respostas_invalidas = [r for r in respostas if not r["texto"].strip()]
+    respostas_corretas = [r for r in respostas if r["correta"]]
+
+    if respostas_invalidas:
+        st.warning("⚠️ Todas as respostas devem ter texto preenchido.")
+    elif len(respostas_corretas) != 1:
+        st.warning("⚠️ Deve haver exatamente uma resposta marcada como correta.")
+    else:
+        try:
+            for r in respostas:
+                db.insert_resposta(r["texto"].strip(), pergunta_id, r["correta"])
+            st.success("✅ 4 respostas foram adicionadas com sucesso!")
+            st.rerun()
+        except Exception as e:
+            st.error(f"❌ Erro ao salvar respostas: {e}")
+
 # 📋 Listar respostas existentes
 respostas = db.get_respostas(pergunta_id) or []
 
@@ -115,47 +158,6 @@ if respostas:
 else:
     st.warning("⚠️ Nenhuma resposta cadastrada para esta pergunta.")
 
-# ➕ Formulário de inserção de múltiplas respostas
-st.subheader("➕ Adicionar 4 Respostas para a Pergunta Selecionada")
 
-with st.form("form_respostas_multiplas"):
-    respostas = []
-
-    for i in range(1, 5):
-        st.markdown(f"**Resposta {i}**")
-
-        texto_key = f"texto_{i}"
-        correta_key = f"correta_{i}"
-
-        # Evita sobrescrever session_state
-        if texto_key not in st.session_state:
-            st.session_state[texto_key] = ""
-        if correta_key not in st.session_state:
-            st.session_state[correta_key] = False
-
-        texto = st.text_input(f"Texto da Resposta {i}", key=texto_key)
-        correta = st.checkbox("É a resposta correta?", key=correta_key)
-
-        respostas.append({"texto": texto, "correta": correta})
-
-    enviar = st.form_submit_button("💾 Salvar todas")
-
-if enviar:
-    # Validação de campos obrigatórios
-    respostas_invalidas = [r for r in respostas if not r["texto"].strip()]
-    respostas_corretas = [r for r in respostas if r["correta"]]
-
-    if respostas_invalidas:
-        st.warning("⚠️ Todas as respostas devem ter texto preenchido.")
-    elif len(respostas_corretas) != 1:
-        st.warning("⚠️ Deve haver exatamente uma resposta marcada como correta.")
-    else:
-        try:
-            for r in respostas:
-                db.insert_resposta(r["texto"].strip(), pergunta_id, r["correta"])
-            st.success("✅ 4 respostas foram adicionadas com sucesso!")
-            st.rerun()
-        except Exception as e:
-            st.error(f"❌ Erro ao salvar respostas: {e}")
 
 db.close()
