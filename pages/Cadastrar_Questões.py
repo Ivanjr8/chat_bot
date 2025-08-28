@@ -34,16 +34,14 @@ else:
 # ⚠️ Tratamento para lista vazia
 if not perguntas:
     st.warning("Nenhuma pergunta encontrada para o módulo selecionado.")
-else:
+#else:
     # Aqui você pode exibir as perguntas como quiser
-    for pergunta in perguntas:
-        st.write(f"• {pergunta}")
+    #for pergunta in perguntas:
+        #st.write(f"• {pergunta}")
 
 # 📋 Visualização das perguntas
 st.subheader("📋 Perguntas cadastradas")
 
-# Remove a pergunta com ID 40 da exibição
-perguntas = [p for p in perguntas if p.get('PK_CO_PERGUNTA') != 40]
 if perguntas:
     for row in perguntas:
         id_pergunta = row.get('PK_CO_PERGUNTA', 'ID desconhecido')
