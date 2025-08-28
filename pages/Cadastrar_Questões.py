@@ -42,9 +42,6 @@ else:
 # 📋 Visualização das perguntas
 st.subheader("📋 Perguntas cadastradas")
 
-# 📋 Visualização das perguntas
-st.subheader("📋 Perguntas cadastradas")
-
 if perguntas:
     for row in perguntas:
         id_pergunta = row.get('PK_CO_PERGUNTA', 'ID desconhecido')
