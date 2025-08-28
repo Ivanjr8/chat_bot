@@ -32,6 +32,27 @@ class DatabaseConnection:
         cursor.close()
         return modulos
     
+    def get_filtros_perguntas(self):
+        cursor = self.conn.cursor()
+
+        # Módulos (usando PK_CO_PERGUNTA como identificador)
+        cursor.execute("SELECT DISTINCT PK_CO_PERGUNTA FROM TB_007_PERGUNTAS")
+        modulos = [row[0] for row in cursor.fetchall()]
+
+        # Disciplinas
+        cursor.execute("SELECT DISTINCT NO_DISCIPLINA FROM TB_006_DISCIPLINA")
+        disciplinas = [row[0] for row in cursor.fetchall()]
+
+        # Tipos de descritor
+        cursor.execute("SELECT DISTINCT CO_TIPO FROM TB_005_DESCRITORES")
+        tipos_descritor = [row[0] for row in cursor.fetchall()]
+
+        return {
+            "modulos": modulos,
+            "disciplinas": disciplinas,
+            "tipos_descritor": tipos_descritor
+        }
+        
     def get_perguntas(self, filtro_modulo=None):
         cursor = self.conn.cursor()
         if filtro_modulo:

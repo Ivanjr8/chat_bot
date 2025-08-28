@@ -20,10 +20,27 @@ except FileNotFoundError:
 db = DatabaseConnection()
 db.connect()
 
-# 🔍 Filtro por módulo
-modulos_disponiveis = db.get_modulos() or []
-modulo_opcoes = ["Todos"] + modulos_disponiveis
+# 🔍 Filtro por módulo, disciplina e tipo de descritor
+try:
+    filtros = db.get_filtros_perguntas() or {}
+except Exception as e:
+    st.sidebar.error(f"Erro ao carregar filtros: {e}")
+    filtros = {}
+
+# Garantindo que cada lista esteja presente e seja uma lista válida
+modulos = filtros.get("modulos") or []
+disciplinas = filtros.get("disciplinas") or []
+tipos_descritor = filtros.get("tipos_descritor") or []
+
+# Adicionando opções padrão
+modulo_opcoes = ["Todos"] + modulos
+disciplina_opcoes = ["Todas"] + disciplinas
+tipo_opcoes = ["Todos"] + tipos_descritor
+
+# Criando os filtros na barra lateral
 modulo_selecionado = st.sidebar.selectbox("🔎 Filtrar por módulo", options=modulo_opcoes)
+disciplina_selecionada = st.sidebar.selectbox("📘 Filtrar por disciplina", options=disciplina_opcoes)
+tipo_selecionado = st.sidebar.selectbox("🧩 Filtrar por tipo de descritor", options=tipo_opcoes)
 
 # 🔎 Recupera perguntas com base no filtro
 if modulo_selecionado != "Todos":
