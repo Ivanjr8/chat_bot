@@ -6,9 +6,9 @@ with open("assets/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Configuração da Página
-st.set_page_config(page_title="Gerar Simulado", layout="wide")
+st.set_page_config(page_title="Listar Perguntas", layout="wide")
 # Titulo da página
-st.title("🚧 Página em Construção")
+st.title("🚧 Listar Perguntas - Página em Construção")
 # Adicionar Imagem 
 st.image("em_construcao.jpg", caption="Estamos trabalhando nisso!", width=300)
 

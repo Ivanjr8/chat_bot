@@ -36,11 +36,11 @@ class DatabaseConnection:
         cursor = self.conn.cursor()
         if filtro_modulo:
             cursor.execute(
-                "SELECT PK_CO_PERGUNTA, CO_PERGUNTA, DE_PERGUNTA FROM TB_007_PERGUNTAS WHERE PK_CO_PERGUNTA = ?",
+                "SELECT PK_CO_PERGUNTA, NO_PERGUNTA, DE_PERGUNTA FROM TB_007_PERGUNTAS WHERE PK_CO_PERGUNTA = ?",
                 (filtro_modulo,)
             )
         else:
-            cursor.execute("SELECT PK_CO_PERGUNTA, CO_PERGUNTA, DE_PERGUNTA FROM TB_007_PERGUNTAS")
+            cursor.execute("SELECT PK_CO_PERGUNTA, NO_PERGUNTA, DE_PERGUNTA FROM TB_007_PERGUNTAS")
 
         columns = [column[0] for column in cursor.description]
         rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
