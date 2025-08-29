@@ -79,11 +79,6 @@ respostas = db.get_respostas_com_filtros(filtro_modulo, filtro_disciplina, filtr
 
 if not respostas:
     st.warning("Nenhuma resposta encontrada com os filtros selecionados.")
-#else:
-    # Aqui você continua com a exibição das respostas
-   # for resposta in respostas:
-        #st.write(resposta)
-
 
 # ➕ Cadastro de múltiplas respostas
 st.subheader("➕ Adicionar 4 Respostas para uma Pergunta")
@@ -139,8 +134,8 @@ if enviar:
 # 📋 Listagem de respostas
 st.subheader(f"📋 {len(respostas)} resposta(s) encontrada(s)")
 
-for r in respostas:
-    id_resposta = r.get('CO_RESPOSTA')
+for i, r in enumerate(respostas):
+    id_resposta = r.get('CO_RESPOSTA') or f"na_{i}"
     texto = r.get('NO_RESPOSTA', '').strip()
     alternativa = r.get('NO_ALTERNATIVA', '').strip()
     correta = r.get('CO_RESPOSTA_CORRETA', False)
@@ -159,7 +154,7 @@ for r in respostas:
 
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("✏️ Editar", key=f"edit_{id_resposta}"):
+            if st.button("✏️ Editar", key=f"edit_{id_resposta}_{i}"):
                 st.session_state["edit_id"] = id_resposta
                 st.session_state["edit_texto"] = texto
                 st.session_state["edit_alternativa"] = alternativa
@@ -167,7 +162,7 @@ for r in respostas:
                 st.rerun()
 
         with col2:
-            if st.button("❌ Excluir", key=f"del_{id_resposta}"):
+            if st.button("❌ Excluir", key=f"del_{id_resposta}_{i}"):
                 st.session_state["confirm_delete_id"] = id_resposta
                 st.rerun()
 
@@ -175,13 +170,13 @@ for r in respostas:
         st.warning(f"⚠️ Confirmar exclusão da resposta: **{texto}**")
         confirmar, cancelar = st.columns(2)
         with confirmar:
-            if st.button("✅ Confirmar", key=f"confirma_{id_resposta}"):
+            if st.button("✅ Confirmar", key=f"confirma_{id_resposta}_{i}"):
                 db.delete_resposta(id_resposta)
                 st.success("Resposta excluída com sucesso.")
                 st.session_state.pop("confirm_delete_id", None)
                 st.rerun()
         with cancelar:
-            if st.button("🚫 Cancelar", key=f"cancela_{id_resposta}"):
+            if st.button("🚫 Cancelar", key=f"cancela_{id_resposta}_{i}"):
                 st.session_state.pop("confirm_delete_id", None)
                 st.rerun()
 
