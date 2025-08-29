@@ -31,7 +31,7 @@ if conn:
     # 🔹 Módulos editáveis
     st.subheader("📦 Editar Módulos")
     modulos_df = pd.read_sql("SELECT id_modulo, nome_modulo, caminho_pagina FROM TB_011_MODULOS", conn)
-    modulos_editados = st.experimental_data_editor(modulos_df, num_rows="dynamic")
+    modulos_editados = st.data_editor(modulos_df, num_rows="dynamic")
 
     if st.button("💾 Salvar Módulos"):
         erros = []
