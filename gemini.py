@@ -197,7 +197,6 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
         """, unsafe_allow_html=True)
          # 🎓 Botões exclusivos para professores
         if perfil != "aluno":
-            st.markdown("## 📊 Painéis do Professor")
             for mod_id in botoes_link_professor:
                 btn = botoes_link_professor[mod_id]
                 st.markdown(f"""
