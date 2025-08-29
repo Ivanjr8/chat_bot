@@ -105,14 +105,14 @@ if conn:
     # 💾 Salvar acessos
     if st.button("💾 Salvar Acessos"):
         erros = []
-        perfis_validos = {"admin", "professor", "aluno"}
+        perfis_validos = set(df_acesso["perfil"].str.lower().unique())
 
         for item in acessos_atualizados:
             perfil = item["perfil"]
             id_modulo = item["id_modulo"]
             acesso = item["acesso"]
 
-            if perfil not in perfis_validos:
+            if perfil.lower() not in perfis_validos:
                 erros.append(f"❌ Perfil inválido: {perfil}")
                 continue
 
