@@ -77,11 +77,11 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
     perfil = st.session_state.perfil
     st.markdown(f"🔐 Perfil atual: **{perfil}**")
 
-    # 🔍 Função para buscar acessos permitidos
+# 🔍 Função para buscar acessos permitidos
 def buscar_acessos_permitidos(perfil):
     try:
         cursor = db.conn.cursor()
-        cursor.execute("SELECT id_modulo FROM TB_012_ACESSOS WHERE perfil = ?", (perfil,))
+        cursor.execute("SELECT id_modulo FROM TB_012_ACESSOS WHERE LOWER(perfil) = ?", (perfil,))
         return [row[0] for row in cursor.fetchall()]
     except Exception as e:
         st.error(f"Erro ao buscar acessos: {e}")
