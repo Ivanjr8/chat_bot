@@ -8,7 +8,7 @@ def acesso_restrito(id_modulo):
         @wraps(func)
         def wrapper(*args, **kwargs):
             if "perfil" not in st.session_state:
-                st.warning("⚠️ Você precisa estar logado.")
+                st.warning("🚫 Acesso negado. Você não tem permissão para acessar esta página.")
                 st.stop()
 
             perfil = st.session_state.perfil.lower()
