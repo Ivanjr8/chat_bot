@@ -189,7 +189,8 @@ class DatabaseConnection:
         cursor.close()
         return rows
         
-    # 🔐 Autenticação
+# 🔐 Autenticação
+
     def autenticar_usuario(self,usuario, senha):
         cursor = self.conn.cursor()
         cursor.execute("SELECT perfil FROM TB_010_USUARIOS WHERE usuario=? AND senha=?", (usuario, senha))
@@ -251,14 +252,7 @@ class DatabaseConnection:
             return f"erro: {str(e)}"
         finally:
             cursor.close()
-            
-   # def get_modulos(self):
-    #    cursor = self.conn.cursor()
-    #    cursor.execute("SELECT id, nome FROM TB_011_MODULOS")
-    #    modulos = [{"id": row[0], "nome": row[1]} for row in cursor.fetchall()]
-   #     cursor.close()
-    #    return modulos
-
+    
     def get_acessos_usuario(self, usuario_id):
         cursor = self.conn.cursor()
         cursor.execute("""
@@ -294,19 +288,13 @@ class DatabaseConnection:
         resultado = cursor.fetchone()[0]
         cursor.close()
         return resultado > 0
+    
     def get_usuarios(self):
         cursor = self.conn.cursor()
         cursor.execute("SELECT id, usuario FROM TB_010_USUARIOS ORDER BY usuario")
         usuarios = [{"id": row[0], "usuario": row[1]} for row in cursor.fetchall()]
         cursor.close()
         return usuarios
-
-    #def get_modulos(self):
-    #    cursor = self.conn.cursor()
-    #    cursor.execute("SELECT id, nome FROM TB_011_MODULOS ORDER BY nome")
-    #    modulos = [{"id": row[0], "nome": row[1]} for row in cursor.fetchall()]
-    #    cursor.close()
-    #    return modulos
 
     def get_acessos_usuario(self, usuario_id):
         cursor = self.conn.cursor()
@@ -371,5 +359,54 @@ class DatabaseConnection:
         self.conn.commit()
         return cursor.rowcount > 0
 
-        
-        
+# Matriz
+
+    def salvar_acessos(self, acessos_atualizados, df_acesso):
+        if not acessos_atualizados:
+            st.warning("⚠️ Nenhuma alteração de acesso foi feita.")
+            return
+
+        erros = []
+        perfis_validos = set(df_acesso["perfil"].str.lower().str.strip().unique())
+        cursor = self.conn.cursor()
+
+        for item in acessos_atualizados:
+            perfil = item.get("perfil", "").strip().lower()
+            id_modulo = item.get("id_modulo")
+            acesso = item.get("acesso", False)
+
+            if perfil not in perfis_validos:
+                erros.append(f"❌ Perfil inválido: {perfil}")
+                continue
+
+            try:
+                if acesso:
+                    cursor.execute("""
+                        SELECT 1 FROM TB_012_ACESSOS WHERE LOWER(perfil) = ? AND id_modulo = ?
+                    """, perfil, id_modulo)
+                    existe = cursor.fetchone()
+
+                    if not existe:
+                        cursor.execute("""
+                            INSERT INTO TB_012_ACESSOS (perfil, id_modulo)
+                            VALUES (?, ?)
+                        """, perfil, id_modulo)
+                else:
+                    st.write(f"Tentando deletar: perfil={perfil}, id_modulo={id_modulo}")
+                    cursor.execute("""
+                        DELETE FROM TB_012_ACESSOS WHERE LOWER(perfil) = ? AND id_modulo = ?
+                    """, perfil, id_modulo)
+
+            except Exception as e:
+                erros.append(f"❌ Erro ao atualizar acesso de {perfil} ao módulo {id_modulo}: {e}")
+
+        if erros:
+            for erro in erros:
+                st.warning(erro)
+        else:
+            try:
+                self.conn.commit()
+                st.success("✅ Acessos atualizados com sucesso!")
+            except Exception as e:
+                st.error(f"❌ Erro ao salvar alterações no banco: {e}")    
+    
