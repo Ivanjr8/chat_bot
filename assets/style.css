@@ -44,4 +44,9 @@
     
 }
 
-
+[data-testid="stSidebar"] .stButton button:hover {
+    background-color: #10b981;                 /* Muda cor de fundo ao passar o mouse */
+    color: white;                              /* Muda cor do texto */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);  /* Aumenta a sombra */
+    transform: scale(1.02);                    /* Leve aumento no tamanho */
+}
