@@ -210,12 +210,13 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                             height: 30px;
                             border: none;
                             border-radius: 8px;
-                            font-size: 14px;
+                            font-size: 16px;
                             font-weight: bold;
                             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                             cursor: pointer;
                             transition: background-color 0.3s ease-in-out;
                             display: flex;
+                            text-decoration: none;
                             justify-content: flex-start;
                             align-items: center;
                         ">
