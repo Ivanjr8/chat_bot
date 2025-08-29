@@ -131,7 +131,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
         for mod_id in modulos_permitidos + [99]:
             if mod_id in botoes_cadastro:
                 btn = botoes_cadastro[mod_id]
-                chave_unica = f"{btn['key']}_{mod_id}_navegacao"
+                chave_unica = f"{btn['key']}_{mod_id}_cadastro"
             if st.button(btn["label"], key=chave_unica):
                st.switch_page(btn["page"])
         st.markdown("---")
@@ -140,7 +140,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
         for mod_id in modulos_permitidos:
             if mod_id in botoes_admin:
                 btn = botoes_admin[mod_id]
-                chave_unica = f"{btn['key']}_{mod_id}_navegacao"
+                chave_unica = f"{btn['key']}_{mod_id}_adm"
             if st.button(btn["label"], key=chave_unica):
                st.switch_page(btn["page"])
         
