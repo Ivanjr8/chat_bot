@@ -19,7 +19,7 @@ def acesso_restrito(id_modulo):
             cursor.execute("""
                 SELECT 1 FROM TB_012_ACESSOS
                 WHERE LOWER(perfil) = ? AND id_modulo = ?
-            """, perfil, id_modulo)
+            """, (perfil, id_modulo))  
 
             if not cursor.fetchone():
                 st.error("🚫 Acesso negado. Você não tem permissão para acessar esta página.")
