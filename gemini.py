@@ -152,13 +152,14 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
         
+        
+        st.markdown("---")
         for mod_id in modulos_permitidos + [99]:
             if mod_id in botoes_retornar:
                 btn = botoes_retornar[mod_id]
                 chave_unica = f"{btn['key']}_{mod_id}_cadastro"
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
-        st.markdown("---")
         st.markdown("### 📞   Suporte")
         st.write("Email: suporte@meuapp.com")
 
