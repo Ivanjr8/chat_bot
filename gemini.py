@@ -168,7 +168,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 chave_unica = f"{btn['key']}_{mod_id}_cadastro"
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
-        if perfil in ["aluno","administrador"]:
+        if perfil in ["aluno","Administrador"]:
             for mod_id in botoes_link_aluno:
                 btn = botoes_link_aluno[mod_id]
                 st.markdown("""
