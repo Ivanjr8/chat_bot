@@ -98,9 +98,9 @@ botoes_paginas = {
 botoes_cadastro = {
     4: {"label": "🗂️   Questões", "page": "pages/Cadastrar_Questões.py", "key": "btn_cadastrar"},
     5: {"label": "🗂️   Respostas", "page": "pages/Cadastrar_Respostas.py", "key": "btn_cadastrar_respostas"},
-    6: {"label": "🗂️   Cadastrar Usuários", "page": "pages/Cadastrar_Usuarios.py", "key": "btn_cadastrar_usuarios"},
+    #6: {"label": "🗂️   Cadastrar Usuários", "page": "pages/Cadastrar_Usuarios.py", "key": "btn_cadastrar_usuarios"},
     7: {"label": "🗂️   Cadastrar_Escolas", "page": "pages/Cadastrar_Escolas.py", "key": "btn_escolas"},
-    8: {"label": "🗂️   matriz", "page": "pages/matriz.py", "key": "btn_matriz"},
+    6: {"label": "🗂️   matriz", "page": "pages/matriz.py", "key": "btn_matriz"},
     9: {"label": "✅   Login", "page": "pages/login_.py", "key": "btn_login_.py"},
     99: {"label": "↩️   Retornar", "page": "gemini.py", "key": "btn_retornar"},  # acesso universal
 }
