@@ -206,7 +206,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                             color: rgba(245, 245, 245, 0.849);
                             text-align: left;
                             padding-left: 12px;
-                            width: 400px;
+                            width: 240px;
                             height: 30px;
                             border: none;
                             border-radius: 8px;
