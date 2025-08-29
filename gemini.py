@@ -5,9 +5,9 @@ from db_connection import DatabaseConnection
 # Configuração da Página
 st.set_page_config(page_title="Simulado SAEB", page_icon="🧠", layout="wide")
 # Titulo da página
-# st.title("📚 Gerenciador de Perguntas do Simulado") # adicionar título e smile
+st.title("📚 Gerenciador de Perguntas do Simulado")
 
-# 🔧  Estilo personalizado
+# 🔧  Estilo Personalizado
 try:
     with open("assets/style.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -35,9 +35,6 @@ def listar_usuarios():
 # Login com Modal
 modal = Modal("🔐 Portal de Acesso", key="login_modal", max_width=600)
 
-#st.set_page_config(page_title="📚 CRUD Simulado", layout="wide")
-st.title("📚 Gerenciador de Perguntas do Simulado")
-
 st.markdown("---")
 st.markdown("""
             Este é um aplicativo que utiliza IA com consultas ao chatbot (GEMINI) para gerar simulados de acordo com descritores,
@@ -49,7 +46,6 @@ st.markdown("""
 
 st.markdown("### 🧪 Bem-vindo ao APP Simulado assistido por IA")
 st.markdown("---")
-
   
 if "usuario" not in st.session_state:
     if st.button("Fazer Login"):

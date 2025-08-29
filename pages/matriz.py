@@ -57,7 +57,7 @@ with st.sidebar:
 # Proteção para acesso não autorizado
 @acesso_restrito(id_modulo=6)
 def pagina_matriz():
-    st.title("📊 Página da Matriz")
+    #st.title("📊 Página da Matriz")
     st.write("Bem-vindo à área de gestão da matriz. Aqui estão os dados estratégicos.")
 pagina_matriz()   
 
