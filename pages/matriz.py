@@ -18,7 +18,48 @@ try:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 except FileNotFoundError:
     st.warning("⚠️ Arquivo de estilo não encontrado.")
-    
+
+# 🧭 Barra lateral personalizada
+with st.sidebar:
+    if "usuario" in st.session_state and "perfil" in st.session_state:
+        st.markdown(f"""
+        👋 Olá, **{st.session_state.usuario}**  
+        🔐 Perfil: **{st.session_state.perfil}**
+        """)
+    st.markdown("## 🧭 Navegação")
+    if st.button("🎓   Chatbot", key="btn_chatbot"):
+        st.switch_page("pages/chatbot.py")
+    if st.button("🖥️   Gerar Simulado", key="btn_simulado"):
+        st.switch_page("pages/Gerar_Simulado.py")
+    if st.button("✅   Teste de Conexão", key="btn_azure"):
+        st.switch_page("pages/conn_azure.py")
+    if st.button("↩️   Retornar", key="btn_retornar"):
+        st.switch_page("gemini.py")
+    st.markdown("---")
+    st.markdown("## ⚙️   Cadastro")
+    if st.button("🗂️   Questões", key="btn_cadastrar"):
+        st.switch_page("pages/Cadastrar_Questões.py")
+    if st.button("🗂️   Respostas", key="btn_cadastrar_respostas"):
+        st.switch_page("pages/Cadastrar_Respostas.py")
+    if st.button("🗂️   Cadastrar Usuários", key="btn_cadastrar_usuarios"):
+        st.switch_page("pages/Cadastrar_Usuarios.py")
+    if st.button("🗂️   Matriz", key="btn_Matriz"):
+        st.switch_page("pages/matriz.py")
+    st.markdown("---")
+    st.markdown("### 📞   Suporte")
+    st.write("Email: suporte@meuapp.com")
+    if st.button("🚪 Sair"):
+        for key in ["usuario", "perfil", "usuario_id"]:
+            st.session_state.pop(key, None)
+        st.switch_page("gemini.py")
+        st.rerun()
+        
+# Proteção para acesso não autorizado
+@acesso_restrito(id_modulo=6)
+def pagina_matriz():
+    st.title("📊 Página da Matriz")
+    st.write("Bem-vindo à área de gestão da matriz. Aqui estão os dados estratégicos.")
+pagina_matriz()   
 
 
 # 🔌 Conexão com o banco
@@ -117,44 +158,3 @@ if conn and engine:
     if st.button("💾 Salvar Acessos"):
         db.salvar_acessos(acessos_atualizados, df_acesso)
 
-# 🧭 Barra lateral personalizada
-with st.sidebar:
-    if "usuario" in st.session_state and "perfil" in st.session_state:
-        st.markdown(f"""
-        👋 Olá, **{st.session_state.usuario}**  
-        🔐 Perfil: **{st.session_state.perfil}**
-        """)
-    st.markdown("## 🧭 Navegação")
-    if st.button("🎓   Chatbot", key="btn_chatbot"):
-        st.switch_page("pages/chatbot.py")
-    if st.button("🖥️   Gerar Simulado", key="btn_simulado"):
-        st.switch_page("pages/Gerar_Simulado.py")
-    if st.button("✅   Teste de Conexão", key="btn_azure"):
-        st.switch_page("pages/conn_azure.py")
-    if st.button("↩️   Retornar", key="btn_retornar"):
-        st.switch_page("gemini.py")
-    st.markdown("---")
-    st.markdown("## ⚙️   Cadastro")
-    if st.button("🗂️   Questões", key="btn_cadastrar"):
-        st.switch_page("pages/Cadastrar_Questões.py")
-    if st.button("🗂️   Respostas", key="btn_cadastrar_respostas"):
-        st.switch_page("pages/Cadastrar_Respostas.py")
-    if st.button("🗂️   Cadastrar Usuários", key="btn_cadastrar_usuarios"):
-        st.switch_page("pages/Cadastrar_Usuarios.py")
-    if st.button("🗂️   Matriz", key="btn_Matriz"):
-        st.switch_page("pages/matriz.py")
-    st.markdown("---")
-    st.markdown("### 📞   Suporte")
-    st.write("Email: suporte@meuapp.com")
-    if st.button("🚪 Sair"):
-        for key in ["usuario", "perfil", "usuario_id"]:
-            st.session_state.pop(key, None)
-        st.switch_page("gemini.py")
-        st.rerun()
-        
-# Proteção para acesso não autorizado
-@acesso_restrito(id_modulo=6)
-def pagina_matriz():
-    st.title("📊 Página da Matriz")
-    st.write("Bem-vindo à área de gestão da matriz. Aqui estão os dados estratégicos.")
-pagina_matriz()
