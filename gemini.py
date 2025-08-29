@@ -96,9 +96,9 @@ botoes_cadastro = {
     9: {"label": "🗂️   Usuarios", "page": " pages/Cadastrar_Usuarios.py", "key": "btn_ Cadastrar_Usuarios"},
 }
 botoes_admin = {
-    6: {"label": "🗂️   matriz", "page": "pages/matriz.py", "key": "btn_matriz"},
     7: {"label": "✅   Teste de  Conexão", "page": "pages/conn_azure.py", "key": "conn_azure.py"},
-    
+    6: {"label": "🗂️   matriz", "page": "pages/matriz.py", "key": "btn_matriz"},
+        
 }
 botoes_retornar = {
     99: {"label": "↩️   Retornar", "page": "gemini.py", "key": "btn_retornar"},  # acesso universal
