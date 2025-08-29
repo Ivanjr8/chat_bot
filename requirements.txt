@@ -5,6 +5,7 @@ pyodbc
 streamlit
 streamlit-modal
 psycopg2-binary
+sqlalchemy
 
 
 
