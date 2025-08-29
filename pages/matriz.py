@@ -3,6 +3,18 @@ import pandas as pd
 import pyodbc
 from sqlalchemy import create_engine
 
+# Configuração da Página
+st.set_page_config(page_title="Simulado SAEB", page_icon="🧠", layout="wide")
+# Titulo da página
+# st.title("📚 Gerenciador de Perguntas do Simulado") # adicionar título e smile
+
+# 🔧  Estilo personalizado
+try:
+    with open("assets/style.css") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+except FileNotFoundError:
+    st.warning("⚠️ Arquivo de estilo não encontrado.")
+
 # 🔌 Conexão com o banco via SQLAlchemy
 def conectar_engine():
     try:
