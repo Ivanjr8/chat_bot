@@ -104,9 +104,17 @@ botoes_retornar = {
     99: {"label": "↩️   Retornar", "page": "gemini.py", "key": "btn_retornar"},  # acesso universal
 }
 
-botoes_link = {
+botoes_link_aluno = {
     98: {
-        "label": "📊   Power BI",
+        "label": "📊   Painel do Aluno",
+        "page": "https://app.powerbi.com/view?r=eyJrIjoiN2M2NWM1N2QtYWQ3My00NjM1LWFiMWQtMjg0YTIxMzMxNjNhIiwidCI6IjRhMjJmMTE2LTUxY2UtNGZlMy1hZWFhLTljNDYxNDNkMDg4YiJ9",
+        "key": "btn_powerbi"
+    }
+}
+
+botoes_link_professor = {
+    97: {
+        "label": "📊   Painel do Aluno",
         "page": "https://app.powerbi.com/view?r=eyJrIjoiYTAzMWJhZGYtMzI1ZS00MzkwLThiOGYtOGEwNWU4ZDUzMGVjIiwidCI6IjRhMjJmMTE2LTUxY2UtNGZlMy1hZWFhLTljNDYxNDNkMDg4YiJ9",
         "key": "btn_powerbi"
     }
@@ -160,8 +168,8 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 chave_unica = f"{btn['key']}_{mod_id}_cadastro"
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
-        for mod_id in botoes_link:
-            btn = botoes_link[mod_id]
+        for mod_id in botoes_link_aluno:
+            btn = botoes_link_aluno[mod_id]
             st.markdown(f"""
             <a href="{btn['page']}" target="_blank">
                 <button style="
@@ -169,7 +177,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                     color: rgba(245, 245, 245, 0.849);            /* Cor clara para texto */
                     text-align: left;                               /* Alinha texto à esquerda */
                     padding-left: 12px;                             /* Espaço interno à esquerda */
-                    width: 240px;                                   /* Largura do botão */
+                    width: 400px;                                   /* Largura do botão */
                     height: 20px;                                   /* Altura do botão */
                     border: none;                                   /* Remove borda padrão */
                     border-radius: 8px;                             /* Arredonda os cantos do botão */
@@ -187,6 +195,36 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 </button>
             </a>
         """, unsafe_allow_html=True)
+         # 🎓 Botões exclusivos para professores
+        if perfil == "professor":
+            st.markdown("## 📊 Painéis do Professor")
+            for mod_id in botoes_link_professor:
+                btn = botoes_link_professor[mod_id]
+                st.markdown(f"""
+                    <a href="{btn['page']}" target="_blank">
+                        <button style="
+                            background-color: #0000004c;
+                            color: rgba(245, 245, 245, 0.849);
+                            text-align: left;
+                            padding-left: 12px;
+                            width: 240px;
+                            height: 30px;
+                            border: none;
+                            border-radius: 8px;
+                            font-size: 14px;
+                            font-weight: bold;
+                            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                            cursor: pointer;
+                            transition: background-color 0.3s ease-in-out;
+                            display: flex;
+                            justify-content: flex-start;
+                            align-items: center;
+                        ">
+                            {btn['label']}
+                        </button>
+                    </a>
+                """, unsafe_allow_html=True)
+
 
         st.markdown("### 📞   Suporte")
         st.write("Email: suporte@meuapp.com")
