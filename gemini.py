@@ -112,50 +112,62 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
 
     modulos_permitidos = buscar_acessos_permitidos(perfil)
 
-    with st.sidebar:
-        st.markdown(f"""
-        👋 Olá, **{usuario}**  
-        🔐 Perfil: **{perfil}**
-        """)
-        st.markdown("## 🧭 Navegação")
+   with st.sidebar:
+    # 👤 Informações do usuário
+    st.markdown(f"""
+    👋 Olá, **{usuario}**  
+    🔐 Perfil: **{perfil}**
+    """)
 
-        for mod_id in modulos_permitidos:
-            if mod_id in botoes_paginas:
-                btn = botoes_paginas[mod_id]
-                chave_unica = f"{btn['key']}_{mod_id}_navegacao"
-                if st.button(btn["label"], key=chave_unica):
-                    st.switch_page(btn["page"])
-        st.markdown("---")
-        st.markdown("## ⚙️   Cadastro")
-        
-        for mod_id in modulos_permitidos + [99]:
-            if mod_id in botoes_cadastro:
-                btn = botoes_cadastro[mod_id]
-                chave_unica = f"{btn['key']}_{mod_id}_cadastro"
-                if st.button(btn["label"], key=chave_unica):
-                 st.switch_page(btn["page"])
-        st.markdown("---")
-        st.markdown("## ⚙️   Administrativo")
-        
-        for mod_id in modulos_permitidos:
-            if mod_id in botoes_admin:
-                btn = botoes_admin[mod_id]
-                chave_unica = f"{btn['key']}_{mod_id}_adm"
-                if st.button(btn["label"], key=chave_unica):
-                    st.switch_page(btn["page"])
-        
-        st.markdown("---")
-        st.markdown("### 📞   Suporte")
-        st.write("Email: suporte@meuapp.com")
+    # 🧭 Navegação
+    st.markdown("## 🧭 Navegação")
+    for mod_id in modulos_permitidos:
+        btn = botoes_paginas.get(mod_id)
+        if btn:
+            chave_unica = f"{btn['key']}_{mod_id}_navegacao"
+            if st.button(btn["label"], key=chave_unica):
+                st.switch_page(btn["page"])
 
-        # 🚪 Botão para sair
-        if st.button("🚪 Sair"):
-            for key in ["usuario", "perfil", "usuario_id"]:
-                st.session_state.pop(key, None)
-            st.switch_page("gemini.py")
-            st.rerun()
+    st.markdown("---")
 
+    # ⚙️ Cadastro
+    st.markdown("## ⚙️   Cadastro")
+    for mod_id in modulos_permitidos + [99]:
+        btn = botoes_cadastro.get(mod_id)
+        if btn:
+            chave_unica = f"{btn['key']}_{mod_id}_cadastro"
+            if st.button(btn["label"], key=chave_unica):
+                st.switch_page(btn["page"])
+
+    st.markdown("---")
+
+    # ⚙️ Administrativo
+    st.markdown("## ⚙️   Administrativo")
+    for mod_id in modulos_permitidos:
+        btn = botoes_admin.get(mod_id)
+        if btn:
+            chave_unica = f"{btn['key']}_{mod_id}_adm"
+            if st.button(btn["label"], key=chave_unica):
+                st.switch_page(btn["page"])
+
+    st.markdown("---")
+
+    # 📞 Suporte
+    st.markdown("### 📞   Suporte")
+    st.write("Email: suporte@meuapp.com")
+
+    # 🚪 Botão para sair
+    if st.button("🚪 Sair"):
+        for key in ["usuario", "perfil", "usuario_id"]:
+            st.session_state.pop(key, None)
+        st.switch_page("gemini.py")
+        st.rerun()
+
+    # 🎨 Estilo customizado
+    try:
         with open("assets/style.css") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    except FileNotFoundError:
+        st.warning("Arquivo de estilo não encontrado.")
 
             
