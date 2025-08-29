@@ -139,13 +139,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
         st.markdown("---")
         st.markdown("## ⚙️   Administrativo")
         
-        for mod_id in modulos_permitidos:
-            if mod_id in botoes_admin:
-                btn = botoes_admin[mod_id]
-                chave_unica = f"{btn['key']}_{mod_id}_adm"
-                if st.button(btn["label"], key=chave_unica):
-                  st.switch_page(btn["page"])
-        
+            
         st.markdown("---")
         st.markdown("### 📞   Suporte")
         st.write("Email: suporte@meuapp.com")
