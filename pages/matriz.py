@@ -1,8 +1,20 @@
 import streamlit as st
 import pandas as pd
 import pyodbc
+from sqlalchemy import create_engine
 
-# 🔌 Conexão com o banco
+# 🔌 Conexão com o banco via SQLAlchemy
+def conectar_engine():
+    try:
+        engine = create_engine(
+            "mssql+pyodbc://ivan:MigMat01#!@srvappmba.database.windows.net/MBA-APP?driver=ODBC+Driver+17+for+SQL+Server"
+        )
+        return engine
+    except Exception as erro:
+        st.error(f"❌ Erro ao conectar via SQLAlchemy: {erro}")
+        return None
+
+# 🔌 Conexão direta para execução de comandos
 def conectar_banco():
     try:
         conexao = pyodbc.connect(
@@ -41,7 +53,7 @@ def salvar_acessos(acessos_atualizados, df_acesso, cursor, conn):
         try:
             if acesso:
                 cursor.execute("""
-                    SELECT 1 FROM TB_012_ACESSOS WHERE perfil = ? AND id_modulo = ?
+                    SELECT 1 FROM TB_012_ACESSOS WHERE LOWER(perfil) = ? AND id_modulo = ?
                 """, perfil, id_modulo)
                 existe = cursor.fetchone()
 
@@ -51,11 +63,11 @@ def salvar_acessos(acessos_atualizados, df_acesso, cursor, conn):
                         VALUES (?, ?)
                     """, perfil, id_modulo)
             else:
+                st.write(f"Tentando deletar: perfil={perfil}, id_modulo={id_modulo}")
                 cursor.execute("""
-                        DELETE FROM TB_012_ACESSOS
-                        WHERE LOWER(perfil) = ? AND id_modulo = ?
-                    """, perfil, id_modulo)
-              
+                    DELETE FROM TB_012_ACESSOS WHERE LOWER(perfil) = ? AND id_modulo = ?
+                """, perfil, id_modulo)
+
         except Exception as e:
             erros.append(f"❌ Erro ao atualizar acesso de {perfil} ao módulo {id_modulo}: {e}")
 
@@ -74,13 +86,15 @@ st.set_page_config(page_title="Gestão de Acessos e Módulos", layout="wide")
 st.title("🔐 Painel de Configuração de Acesso")
 
 conn = conectar_banco()
-if conn:
+engine = conectar_engine()
+
+if conn and engine:
     cursor = conn.cursor()
 
     # 🔹 Exibir módulos existentes
     st.subheader("📦 Módulos Existentes")
-    modulos_df = pd.read_sql("SELECT id_modulo, nome_modulo, caminho_pagina FROM TB_011_MODULOS", conn)
-    st.dataframe(modulos_df, use_container_width=True)
+    modulos_df = pd.read_sql("SELECT id_modulo, nome_modulo, caminho_pagina FROM TB_011_MODULOS", engine)
+    st.dataframe(modulos_df, width='stretch')
 
     # ➕ Adicionar novo módulo
     st.subheader("➕ Adicionar Novo Módulo")
@@ -124,7 +138,7 @@ if conn:
         ON LOWER(u.perfil) = a.perfil AND m.id_modulo = a.id_modulo
     ORDER BY u.usuario, m.id_modulo;
     """
-    df_acesso = pd.read_sql(query_acesso, conn)
+    df_acesso = pd.read_sql(query_acesso, engine)
 
     perfil_selecionado = st.selectbox("Filtrar por perfil", options=["Todos"] + sorted(df_acesso["perfil"].unique()))
     if perfil_selecionado != "Todos":
