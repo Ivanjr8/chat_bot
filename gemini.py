@@ -114,7 +114,7 @@ botoes_link_aluno = {
 
 botoes_link_professor = {
     97: {
-        "label": "📊   Painel do Aluno",
+        "label": "📊   Painel Professor",
         "page": "https://app.powerbi.com/view?r=eyJrIjoiYTAzMWJhZGYtMzI1ZS00MzkwLThiOGYtOGEwNWU4ZDUzMGVjIiwidCI6IjRhMjJmMTE2LTUxY2UtNGZlMy1hZWFhLTljNDYxNDNkMDg4YiJ9",
         "key": "btn_powerbi"
     }
