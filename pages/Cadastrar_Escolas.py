@@ -50,7 +50,6 @@ else:
                     else:
                         st.error("Erro ao excluir.")
                       
-                        
 
 st.markdown("---")
 

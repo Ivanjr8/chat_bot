@@ -189,7 +189,8 @@ class DatabaseConnection:
         cursor.close()
         return rows
         
-    # 🔐 Autenticação
+# 🔐 Autenticação
+
     def autenticar_usuario(self,usuario, senha):
         cursor = self.conn.cursor()
         cursor.execute("SELECT perfil FROM TB_010_USUARIOS WHERE usuario=? AND senha=?", (usuario, senha))
@@ -251,14 +252,7 @@ class DatabaseConnection:
             return f"erro: {str(e)}"
         finally:
             cursor.close()
-            
-   # def get_modulos(self):
-    #    cursor = self.conn.cursor()
-    #    cursor.execute("SELECT id, nome FROM TB_011_MODULOS")
-    #    modulos = [{"id": row[0], "nome": row[1]} for row in cursor.fetchall()]
-   #     cursor.close()
-    #    return modulos
-
+    
     def get_acessos_usuario(self, usuario_id):
         cursor = self.conn.cursor()
         cursor.execute("""
@@ -294,19 +288,13 @@ class DatabaseConnection:
         resultado = cursor.fetchone()[0]
         cursor.close()
         return resultado > 0
+    
     def get_usuarios(self):
         cursor = self.conn.cursor()
         cursor.execute("SELECT id, usuario FROM TB_010_USUARIOS ORDER BY usuario")
         usuarios = [{"id": row[0], "usuario": row[1]} for row in cursor.fetchall()]
         cursor.close()
         return usuarios
-
-    #def get_modulos(self):
-    #    cursor = self.conn.cursor()
-    #    cursor.execute("SELECT id, nome FROM TB_011_MODULOS ORDER BY nome")
-    #    modulos = [{"id": row[0], "nome": row[1]} for row in cursor.fetchall()]
-    #    cursor.close()
-    #    return modulos
 
     def get_acessos_usuario(self, usuario_id):
         cursor = self.conn.cursor()
