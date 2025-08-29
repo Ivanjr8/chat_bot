@@ -120,7 +120,7 @@ if conn and engine:
                     st.error(f"❌ Erro ao adicionar módulo: {e}")
 
     # 🔧 Configurar acessos
-    st.subheader("🔧 Configurar Acessos por Perfil")
+    st.subheader("🔧 Configurar Acessos por Usuário")
 
     query_acesso = """
     SELECT 
@@ -140,16 +140,16 @@ if conn and engine:
     """
     df_acesso = pd.read_sql(query_acesso, engine)
 
-    perfil_selecionado = st.selectbox("Filtrar por perfil", options=["Todos"] + sorted(df_acesso["perfil"].unique()))
-    if perfil_selecionado != "Todos":
-        df_acesso = df_acesso[df_acesso["perfil"] == perfil_selecionado]
+    usuario_selecionado = st.selectbox("Filtrar por usuário", options=["Todos"] + sorted(df_acesso["usuario"].unique()))
+    if usuario_selecionado != "Todos":
+        df_acesso = df_acesso[df_acesso["usuario"] == usuario_selecionado]
 
-    st.write("🟢 Marque os módulos que o perfil pode acessar:")
+    st.write("🟢 Marque os módulos que o usuário pode acessar:")
     acessos_atualizados = []
 
-    for usuario in df_acesso["usuario"].unique():
-        st.markdown(f"**👤 Usuário: {usuario}**")
-        usuario_df = df_acesso[df_acesso["usuario"] == usuario]
+    if usuario_selecionado != "Todos":
+        st.markdown(f"**👤 Usuário: {usuario_selecionado}**")
+        usuario_df = df_acesso[df_acesso["usuario"] == usuario_selecionado]
 
         for _, row in usuario_df.iterrows():
             modulo = row["nome_modulo"]
@@ -157,13 +157,31 @@ if conn and engine:
             id_modulo = row["id_modulo"]
             acesso_atual = bool(row["acesso"])
 
-            chave_id = f"{usuario}_{perfil}_{id_modulo}"
+            chave_id = f"{usuario_selecionado}_{perfil}_{id_modulo}"
             chave = st.toggle(f"🔌 {modulo}", value=acesso_atual, key=chave_id)
             acessos_atualizados.append({
                 "perfil": perfil,
                 "id_modulo": id_modulo,
                 "acesso": chave
             })
+    else:
+        for usuario in df_acesso["usuario"].unique():
+            st.markdown(f"**👤 Usuário: {usuario}**")
+            usuario_df = df_acesso[df_acesso["usuario"] == usuario]
+
+            for _, row in usuario_df.iterrows():
+                modulo = row["nome_modulo"]
+                perfil = row["perfil"].lower()
+                id_modulo = row["id_modulo"]
+                acesso_atual = bool(row["acesso"])
+
+                chave_id = f"{usuario}_{perfil}_{id_modulo}"
+                chave = st.toggle(f"🔌 {modulo}", value=acesso_atual, key=chave_id)
+                acessos_atualizados.append({
+                    "perfil": perfil,
+                    "id_modulo": id_modulo,
+                    "acesso": chave
+                })
 
     if st.button("💾 Salvar Acessos"):
         salvar_acessos(acessos_atualizados, df_acesso, cursor, conn)
