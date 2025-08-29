@@ -92,7 +92,7 @@ if conn:
     if perfil_selecionado != "Todos":
         df_acesso = df_acesso[df_acesso["perfil"] == perfil_selecionado]
 
-    df_editado = st.experimental_data_editor(df_acesso, num_rows="dynamic")
+    df_editado = st.data_editor(df_acesso, num_rows="dynamic")
 
     if st.button("💾 Salvar Acessos"):
         erros = []
