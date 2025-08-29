@@ -168,7 +168,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 chave_unica = f"{btn['key']}_{mod_id}_cadastro"
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
-        if perfil in ["aluno","Administrador"]:
+        if perfil in ['Aluno']:
             for mod_id in botoes_link_aluno:
                 btn = botoes_link_aluno[mod_id]
                 st.markdown("""
@@ -207,7 +207,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 </a>
             """, unsafe_allow_html=True)
          # 🎓 Botões exclusivos para professores
-        if perfil != "aluno":
+        if perfil != "Aluno":
             for mod_id in botoes_link_professor:
                 btn = botoes_link_professor[mod_id]
                 st.markdown("""
@@ -245,8 +245,6 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                     {btn['label']}
                 </a>
             """, unsafe_allow_html=True)
-
-
 
         st.markdown("### 📞   Suporte")
         st.write("Email: suporte@meuapp.com")
