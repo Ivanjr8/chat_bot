@@ -169,8 +169,8 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
         if perfil != "aluno":
-            for mod_id in botoes_link_professor:
-                btn = botoes_link_professor[mod_id]
+            for mod_id in botoes_link_aluno:
+                btn = botoes_link_aluno[mod_id]
                 st.markdown("""
                 <style>
                     .custom-btn {
