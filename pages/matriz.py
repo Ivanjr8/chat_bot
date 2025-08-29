@@ -54,10 +54,10 @@ def salvar_acessos(acessos_atualizados, df_acesso, cursor, conn):
 
                 if not existe:
                     cursor.execute("""
-                        INSERT INTO TB_012_ACESSOS (id_acesso, perfil, id_modulo)
-                        VALUES (?, ?, ?)
-                    """, proximo_id, perfil, id_modulo)
-                    proximo_id += 1
+                        INSERT INTO TB_012_ACESSOS (perfil, id_modulo)
+                        VALUES (?, ?)
+                    """, perfil, id_modulo)
+                    
             else:
                 cursor.execute("""
                     DELETE FROM TB_012_ACESSOS WHERE perfil = ? AND id_modulo = ?
