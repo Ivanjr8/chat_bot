@@ -29,13 +29,6 @@ def salvar_acessos(acessos_atualizados, df_acesso, cursor, conn):
     erros = []
     perfis_validos = set(df_acesso["perfil"].str.lower().str.strip().unique())
 
-    try:
-        cursor.execute("SELECT ISNULL(MAX(id_acesso), 0) + 1 FROM TB_012_ACESSOS")
-        proximo_id = cursor.fetchone()[0]
-    except Exception as e:
-        st.error(f"❌ Erro ao buscar próximo ID: {e}")
-        return
-
     for item in acessos_atualizados:
         perfil = item.get("perfil", "").strip().lower()
         id_modulo = item.get("id_modulo")
