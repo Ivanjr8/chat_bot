@@ -75,6 +75,7 @@ if "usuario" not in st.session_state:
 # 🔧 Estilo personalizado
 if "usuario" in st.session_state and "perfil" in st.session_state:
     perfil = st.session_state.perfil
+    st.markdown(f"🔐 Perfil atual: **{perfil}**")
 
     # 🔍 Função para buscar acessos permitidos
 def buscar_acessos_permitidos(perfil):
