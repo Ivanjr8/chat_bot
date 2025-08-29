@@ -19,12 +19,7 @@ try:
 except FileNotFoundError:
     st.warning("⚠️ Arquivo de estilo não encontrado.")
     
-@acesso_restrito(id_modulo=6)
-def pagina_matriz():
-    st.title("📊 Página da Matriz")
-    st.write("Bem-vindo à área de gestão da matriz. Aqui estão os dados estratégicos.")
 
-pagina_matriz()
 
 # 🔌 Conexão com o banco
 db = DatabaseConnection()
@@ -156,3 +151,10 @@ with st.sidebar:
             st.session_state.pop(key, None)
         st.switch_page("gemini.py")
         st.rerun()
+        
+# Proteção para acesso não autorizado
+@acesso_restrito(id_modulo=6)
+def pagina_matriz():
+    st.title("📊 Página da Matriz")
+    st.write("Bem-vindo à área de gestão da matriz. Aqui estão os dados estratégicos.")
+pagina_matriz()
