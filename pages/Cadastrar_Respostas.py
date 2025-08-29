@@ -79,10 +79,10 @@ respostas = db.get_respostas_com_filtros(filtro_modulo, filtro_disciplina, filtr
 
 if not respostas:
     st.warning("Nenhuma resposta encontrada com os filtros selecionados.")
-else:
+#else:
     # Aqui você continua com a exibição das respostas
-    for resposta in respostas:
-        st.write(resposta)
+   # for resposta in respostas:
+        #st.write(resposta)
 
 
 # ➕ Cadastro de múltiplas respostas
