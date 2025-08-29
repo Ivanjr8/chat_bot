@@ -108,6 +108,10 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
     usuario = st.session_state.usuario
 
     modulos_permitidos = buscar_acessos_permitidos(perfil)
+    
+    # 👇 Adicione aqui para depurar
+    st.write("Modulos permitidos:", modulos_permitidos)
+    st.write("IDs disponíveis em botoes_cadastro:", list(botoes_cadastro.keys()))
 
     with st.sidebar:
         st.markdown(f"""
