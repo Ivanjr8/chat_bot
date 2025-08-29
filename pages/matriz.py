@@ -6,13 +6,6 @@ from db_connection import DatabaseConnection
 import streamlit as st
 from decoradores import acesso_restrito
 
-@acesso_restrito(id_modulo=6)
-def pagina_matriz():
-    st.title("📊 Página da Matriz")
-    st.write("Bem-vindo à área de gestão da matriz. Aqui estão os dados estratégicos.")
-
-pagina_matriz()
-
 
 
 # 🎯 Configuração da página
@@ -25,6 +18,13 @@ try:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 except FileNotFoundError:
     st.warning("⚠️ Arquivo de estilo não encontrado.")
+    
+@acesso_restrito(id_modulo=6)
+def pagina_matriz():
+    st.title("📊 Página da Matriz")
+    st.write("Bem-vindo à área de gestão da matriz. Aqui estão os dados estratégicos.")
+
+pagina_matriz()
 
 # 🔌 Conexão com o banco
 db = DatabaseConnection()
