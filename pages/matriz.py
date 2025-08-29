@@ -94,7 +94,8 @@ if conn:
             id_modulo = row["id_modulo"]
             acesso_atual = bool(row["acesso"])
 
-            chave = st.toggle(f"🔌 Acesso ao módulo: {modulo}", value=acesso_atual, key=f"{usuario}_{modulo}")
+            chave_id = f"{usuario}_{perfil}_{id_modulo}"
+            chave = st.toggle(f"🔌 {modulo}", value=acesso_atual, key=chave_id)
             acessos_atualizados.append({
                 "perfil": perfil,
                 "id_modulo": id_modulo,
