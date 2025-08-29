@@ -53,11 +53,9 @@ if conn:
                     """, novo_nome.strip(), novo_caminho.strip())
                     conn.commit()
                     st.success(f"✅ Módulo '{novo_nome}' adicionado com sucesso!")
-                    st.rerun()
                 except Exception as e:
                     st.error(f"❌ Erro ao adicionar módulo: {e}")
-                    
-
+       
     # 🔧 Configurar acessos
     st.subheader("🔧 Configurar Acessos por Perfil")
 
@@ -104,39 +102,43 @@ if conn:
                 "acesso": chave
             })
 
-    # 💾 Salvar acessos
-    if st.button("💾 Salvar Acessos"):
-        erros = []
-        perfis_validos = set(df_acesso["perfil"].str.lower().unique())
+   if st.button("💾 Salvar Acessos"):
+    erros = []
 
-        for item in acessos_atualizados:
-            perfil = item["perfil"]
-            id_modulo = item["id_modulo"]
-            acesso = item["acesso"]
+    # Gerar novo ID manualmente (caso id_acesso não seja IDENTITY)
+    cursor.execute("SELECT ISNULL(MAX(id_acesso), 0) + 1 FROM TB_012_ACESSOS")
+    proximo_id = cursor.fetchone()[0]
 
-            if perfil.lower() not in perfis_validos:
-                erros.append(f"❌ Perfil inválido: {perfil}")
-                continue
+    for item in acessos_atualizados:
+        perfil = item["perfil"].strip().lower()
+        id_modulo = item["id_modulo"]
+        acesso = item["acesso"]
 
-            try:
-                if acesso:
+        try:
+            if acesso:
+                # Verifica se já existe
+                cursor.execute("""
+                    SELECT 1 FROM TB_012_ACESSOS WHERE perfil = ? AND id_modulo = ?
+                """, perfil, id_modulo)
+                existe = cursor.fetchone()
+
+                if not existe:
                     cursor.execute("""
-                        IF NOT EXISTS (
-                            SELECT 1 FROM TB_012_ACESSOS WHERE perfil = ? AND id_modulo = ?
-                        )
-                        INSERT INTO TB_012_ACESSOS (perfil, id_modulo)
-                        VALUES (?, ?);
-                    """, perfil, id_modulo, perfil, id_modulo)
-                else:
-                    cursor.execute("""
-                        DELETE FROM TB_012_ACESSOS WHERE perfil = ? AND id_modulo = ?
-                    """, perfil, id_modulo)
-            except Exception as e:
-                erros.append(f"Erro ao atualizar acesso de {perfil} ao módulo {id_modulo}: {e}")
+                        INSERT INTO TB_012_ACESSOS (id_acesso, perfil, id_modulo)
+                        VALUES (?, ?, ?)
+                    """, proximo_id, perfil, id_modulo)
+                    proximo_id += 1
+            else:
+                cursor.execute("""
+                    DELETE FROM TB_012_ACESSOS WHERE perfil = ? AND id_modulo = ?
+                """, perfil, id_modulo)
 
-        if erros:
-            for erro in erros:
-                st.warning(erro)
-        else:
-            conn.commit()
-            st.success("✅ Acessos atualizados com sucesso!")
+        except Exception as e:
+            erros.append(f"❌ Erro ao atualizar acesso de {perfil} ao módulo {id_modulo}: {e}")
+
+    if erros:
+        for erro in erros:
+            st.warning(erro)
+    else:
+        conn.commit()
+        st.success("✅ Acessos atualizados com sucesso!")
