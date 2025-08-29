@@ -198,8 +198,9 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
         if perfil != "aluno":
             for mod_id in botoes_link_professor:
                 btn = botoes_link_professor[mod_id]
-                st.markdown(f"""
-                    <a href="{btn['page']}" target="_blank" style="
+                st.markdown("""
+                <style>
+                    .custom-btn {
                         background-color: #0000004c;
                         color: rgba(245, 245, 245, 0.849);
                         text-align: left;
@@ -218,10 +219,20 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
                         transform: scale(1.02);
                         text-decoration: none;
-                    ">
-                        {btn['label']}
-                    </a>
-                """, unsafe_allow_html=True)
+                    }
+
+                    .custom-btn:hover {
+                        background-color: #10b981;
+                        color: white;
+                    }
+                </style>
+            """, unsafe_allow_html=True)
+
+            st.markdown(f"""
+                <a href="{btn['page']}" target="_blank" class="custom-btn">
+                    {btn['label']}
+                </a>
+            """, unsafe_allow_html=True)
 
 
 
