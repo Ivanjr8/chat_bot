@@ -95,8 +95,8 @@ def executar_insert():
 
    
 # Interface Streamlit
-st.set_page_config(page_title="Conexão com Banco", page_icon="🗄️", layout="centered")
-st.title("🗄️ Conexão com SQL Server")
+#st.set_page_config(page_title="Conexão com Banco", page_icon="🗄️", layout="centered")
+#st.title("🗄️ Conexão com SQL Server")
 
 st.markdown("Clique no botão abaixo para conectar e listar as tabelas disponíveis:")
 
