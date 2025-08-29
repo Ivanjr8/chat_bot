@@ -74,73 +74,51 @@ if "usuario" not in st.session_state:
 
 # Conteúdo após login
 # 🔧 Estilo personalizado
-if "usuario" in st.session_state and "perfil" in st.session_state:
-    perfil = st.session_state.perfil
+if "usuario" in st.session_state:
 
-    # 🔍 Função para buscar acessos permitidos
-def buscar_acessos_permitidos(perfil):
-    try:
-        cursor = db.conn.cursor()
-        cursor.execute("SELECT id_modulo FROM TB_012_ACESSOS WHERE perfil = ?", (perfil,))
-        return [row[0] for row in cursor.fetchall()]
-    except Exception as e:
-        st.error(f"Erro ao buscar acessos: {e}")
-        return []
-
-# 🗺️ Mapeamento de módulos para botões e páginas
-botoes_paginas = {
-    1: {"label": "🎓   Chatbot", "page": "pages/chatbot.py", "key": "btn_chatbot"},
-    2: {"label": "🖥️   Gerar Simulado", "page": "pages/Gerar_Simulado.py", "key": "btn_simulado"},
-    3: {"label": "✅   Teste de Conexão", "page": "pages/conn_azure.py", "key": "btn_azure"},
-    4: {"label": "🗂️   Questões", "page": "pages/Cadastrar_Questões.py", "key": "btn_cadastrar"},
-    5: {"label": "🗂️   Respostas", "page": "pages/Cadastrar_Respostas.py", "key": "btn_cadastrar_respostas"},
-    6: {"label": "🗂️   Cadastrar Usuários", "page": "pages/Cadastrar_Usuarios.py", "key": "btn_cadastrar_usuarios"},
-    7: {"label": "🗂️   Cadastrar_Escolas", "page": "pages/Cadastrar_Escolas.py", "key": "btn_escolas"},
-    8: {"label": "🗂️   matriz", "page": "pages/matriz.py", "key": "btn_matriz"},
-    99: {"label": "↩️   Retornar", "page": "gemini.py", "key": "btn_retornar"}  # acesso universal
-}
-
-# 🔧 Conteúdo após login
-if "usuario" in st.session_state and "perfil" in st.session_state:
-    perfil = st.session_state.perfil
-    usuario = st.session_state.usuario
-
-    modulos_permitidos = buscar_acessos_permitidos(perfil)
-
+# 🧭 Barra lateral personalizada
     with st.sidebar:
-        st.markdown(f"""
-        👋 Olá, **{usuario}**  
-        🔐 Perfil: **{perfil}**
-        """)
+        if "usuario" in st.session_state and "perfil" in st.session_state:
+            st.markdown(f"""
+            👋 Olá, **{st.session_state.usuario}**  
+            🔐 Perfil: **{st.session_state.perfil}**
+            """)
         st.markdown("## 🧭 Navegação")
-
-        # 🔐 Botões de navegação permitidos
-        for mod_id in modulos_permitidos + [99]:  # 99 = botão de retorno
-            if mod_id in botoes_paginas:
-                btn = botoes_paginas[mod_id]
-                if st.button(btn["label"], key=btn["key"]):
-                    st.switch_page(btn["page"])
-
+        if st.button("🎓   Chatbot", key="btn_chatbot"):
+            st.switch_page("pages/chatbot.py")
+        if st.button("🖥️   Gerar Simulado", key="btn_simulado"):
+            st.switch_page("pages/Gerar_Simulado.py")
+        if st.button("✅   Teste de Conexão", key="btn_azure"):
+            st.switch_page("pages/conn_azure.py")
+        if st.button("↩️   Retornar", key="btn_retornar"):
+            st.switch_page("gemini.py")
         st.markdown("---")
         st.markdown("## ⚙️   Cadastro")
-
-        # 🔐 Botões de cadastro permitidos
-        for mod_id in [4, 5, 6, 7, 8]:
-            if mod_id in modulos_permitidos and mod_id in botoes_paginas:
-                btn = botoes_paginas[mod_id]
-                if st.button(btn["label"], key=btn["key"]):
-                    st.switch_page(btn["page"])
-
+        if st.button("🗂️   Questões", key="btn_cadastrar"):
+            st.switch_page("pages/Cadastrar_Questões.py")
+        if st.button("🗂️   Respostas", key="btn_cadastrar_respostas"):
+            st.switch_page("pages/Cadastrar_Respostas.py")
+        if st.button("🗂️   Cadastrar Usuários", key="btn_cadastrar_usuarios"):
+            st.switch_page("pages/Cadastrar_Usuarios.py")
+        if st.button("🗂️   Cadastrar_Escolas", key="btn_escolas"):
+            st.switch_page("pages/Cadastrar_Escolas.py")
+        if st.button("🗂️   matriz", key="btn_matriz"):
+            st.switch_page("pages/matriz.py")
+        
         st.markdown("---")
         st.markdown("### 📞   Suporte")
         st.write("Email: suporte@meuapp.com")
-
-        # 🚪 Botão para sair
+        
+        
+        # Botão para sair
         if st.button("🚪 Sair"):
+    # Remove dados de sessão
             for key in ["usuario", "perfil", "usuario_id"]:
                 st.session_state.pop(key, None)
-            st.switch_page("gemini.py")
-            st.rerun()
+    # Redireciona para a página inicial (gemini.py)
+                st.switch_page("gemini.py")
+            # Reinicia a aplicação
+                st.rerun()
 
         with open("assets/style.css") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
