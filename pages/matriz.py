@@ -55,7 +55,7 @@ def salvar_acessos(acessos_atualizados, df_acesso, cursor, conn):
                         DELETE FROM TB_012_ACESSOS
                         WHERE LOWER(perfil) = ? AND id_modulo = ?
                     """, perfil, id_modulo)
-                print(f"Removendo acesso: perfil={perfil}, id_modulo={id_modulo}")
+              
         except Exception as e:
             erros.append(f"❌ Erro ao atualizar acesso de {perfil} ao módulo {id_modulo}: {e}")
 
