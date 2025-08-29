@@ -170,14 +170,15 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                     st.switch_page(btn["page"])
         for mod_id in botoes_link_aluno:
             btn = botoes_link_aluno[mod_id]
-            st.markdown(f"""
-                    <a href="{btn['page']}" target="_blank" style="
+            st.markdown("""
+                <style>
+                    .custom-btn {
                         background-color: #0000004c;
-                        color: rgba(245, 245, 245, 0.849);
+                        color: rgba(245, 245, 245, 0.849) !important;
                         text-align: left;
                         padding-left: 12px;
                         width: 240px;
-                        height: 30px;
+                        height: 40px;
                         border: none;
                         border-radius: 8px;
                         font-size: 16px;
@@ -189,11 +190,15 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                         align-items: center;
                         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
                         transform: scale(1.02);
-                        text-decoration: none;
-                    ">
-                        {btn['label']}
-                    </a>
-                """, unsafe_allow_html=True)
+                        text-decoration: none !important;
+                    }
+
+                    .custom-btn:hover {
+                        background-color: #10b981;
+                        color: white;
+                    }
+                </style>
+            """, unsafe_allow_html=True)
          # 🎓 Botões exclusivos para professores
         if perfil != "aluno":
             for mod_id in botoes_link_professor:
@@ -202,7 +207,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 <style>
                     .custom-btn {
                         background-color: #0000004c;
-                        color: rgba(245, 245, 245, 0.849);
+                        color: rgba(245, 245, 245, 0.849) !important;
                         text-align: left;
                         padding-left: 12px;
                         width: 240px;
