@@ -1,8 +1,6 @@
 import streamlit as st
 from streamlit_modal import Modal
 from db_connection import DatabaseConnection
-import pages.relatorios as relatorios
-relatorios.render()
 
 
   
