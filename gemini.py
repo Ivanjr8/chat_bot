@@ -219,6 +219,10 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                             text-decoration: none;
                             justify-content: flex-start;
                             align-items: center;
+                            background-color: #10b981;                 /* Muda cor de fundo ao passar o mouse */
+                            color: white;                              /* Muda cor do texto */
+                            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);  /* Aumenta a sombra */
+                            transform: scale(1.02);                    /* Leve aumento no tamanho */
                         ">
                             {btn['label']}
                         </button>
