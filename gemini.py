@@ -181,7 +181,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                     height: 20px;                                   /* Altura do botão */
                     border: none;                                   /* Remove borda padrão */
                     border-radius: 8px;                             /* Arredonda os cantos do botão */
-                    font-size: 14px;                                /* Tamanho da fonte */
+                    font-size: 16px;                                /* Tamanho da fonte */
                     font-weight: bold;                              /* Texto em negrito */
                     box-shadow: 0 4px 6px rgba(0,0,0,0.1);        /* Sombra leve abaixo do botão */
                     cursor: pointer;                                /* Cursor muda para "mãozinha" ao passar por cima */
