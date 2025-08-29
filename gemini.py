@@ -196,7 +196,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
             </a>
         """, unsafe_allow_html=True)
          # 🎓 Botões exclusivos para professores
-        if perfil == "professor":
+        if perfil in ["professor", "administrador"]:
             st.markdown("## 📊 Painéis do Professor")
             for mod_id in botoes_link_professor:
                 btn = botoes_link_professor[mod_id]
@@ -207,7 +207,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                             color: rgba(245, 245, 245, 0.849);
                             text-align: left;
                             padding-left: 12px;
-                            width: 240px;
+                            width: 400px;
                             height: 30px;
                             border: none;
                             border-radius: 8px;
