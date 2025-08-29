@@ -87,18 +87,16 @@ def buscar_acessos_permitidos(perfil):
 botoes_paginas = {
     1: {"label": "🎓   Chatbot", "page": "pages/chatbot.py", "key": "btn_chatbot"},
     2: {"label": "🖥️   Gerar Simulado", "page": "pages/Gerar_Simulado.py", "key": "btn_simulado"},
-    #3: {"label": "✅   Teste de Conexão", "page": "pages/conn_azure.py", "key": "btn_azure"},
     
 }
 botoes_cadastro = {
     3: {"label": "🗂️   Questões", "page": "pages/Cadastrar_Questões.py", "key": "btn_cadastrar"},
     4: {"label": "🗂️   Respostas", "page": "pages/Cadastrar_Respostas.py", "key": "btn_cadastrar_respostas"},
-    #6: {"label": "🗂️   Cadastrar Usuários", "page": "pages/Cadastrar_Usuarios.py", "key": "btn_cadastrar_usuarios"},
     5: {"label": "🗂️   Cadastrar_Escolas", "page": "pages/Cadastrar_Escolas.py", "key": "btn_escolas"},
-    7: {"label": "✅   Login", "page": "pages/login_.py", "key": "btn_login_.py"},
 }
 botoes_admin = {
     6: {"label": "🗂️   matriz", "page": "pages/matriz.py", "key": "btn_matriz"},
+    7: {"label": "✅   Teste de  Conexão", "page": "pages/conn_azure.py", "key": "conn_azure.py"},
     
 }
 botoes_retornar = {
