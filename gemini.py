@@ -121,15 +121,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
             if st.button(btn["label"], key=chave_unica):
                st.switch_page(btn["page"])
 
-        st.markdown("---")
-        st.markdown("## ⚙️   Cadastro")
-
-        for mod_id in [4, 5, 6, 7, 8]:
-            if mod_id in modulos_permitidos and mod_id in botoes_paginas:
-                btn = botoes_paginas[mod_id]
-                chave_unica = f"{btn['key']}_{mod_id}_cadastro"
-            if st.button(btn["label"], key=chave_unica):
-               st.switch_page(btn["page"])
+      
 
 
         st.markdown("---")
