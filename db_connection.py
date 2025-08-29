@@ -28,20 +28,16 @@ class DatabaseConnection:
   
     def get_filtros_perguntas(self):
         cursor = self.conn.cursor()
-
-        cursor.execute("SELECT DISTINCT PK_CO_PERGUNTA FROM TB_007_PERGUNTAS")
-        modulos = [row[0] for row in cursor.fetchall()]
-
-        cursor.execute("SELECT PK_CO_DISCIPLINA, NO_DISCIPLINA FROM TB_006_DISCIPLINA")
-        disciplinas = [{"id": row[0], "nome": row[1].strip()} for row in cursor.fetchall()]
-
-        cursor.execute("SELECT PK_ID_DESCRITOR, CO_TIPO FROM TB_005_DESCRITORES")
-        descritores = [{"id": row[0], "tipo": row[1].strip()} for row in cursor.fetchall()]
-
         return {
-            "modulos": modulos,
-            "disciplinas": disciplinas,
-            "descritores": descritores
+            "modulos": [row.pk_co_pergunta for row in cursor.execute("SELECT DISTINCT pk_co_pergunta FROM TB_007_PERGUNTAS")],
+            "disciplinas": [
+                {"id": row.pk_co_disciplina, "nome": row.no_disciplina}
+                for row in cursor.execute("SELECT pk_co_disciplina, no_disciplina FROM TB_006_DISCIPLINA")
+            ],
+            "descritores": [
+                {"id": row.pk_id_descritor, "tipo": row.co_tipo}
+                for row in cursor.execute("SELECT pk_id_descritor, co_tipo FROM TB_005_DESCRITORES")
+            ]
         }
 
     def get_perguntas(self, filtro_modulo=None, filtro_disciplina=None, filtro_descritor=None):
@@ -127,7 +123,57 @@ class DatabaseConnection:
         col_names = [desc[0] for desc in cursor.description]
         return [dict(zip(col_names, row)) for row in rows]
 
+    def get_respostas_com_filtros(self, modulo=None, disciplina=None, descritor=None):
+        cursor = self.conn.cursor()
+        query = """
+            SELECT b.pk_co_pergunta, b.no_pergunta, b.de_pergunta,
+                   a.co_resposta, a.no_resposta, a.no_alternativa, a.co_resposta_correta,
+                   c.co_tipo, d.pk_co_disciplina, d.no_disciplina
+            FROM TB_008_RESPOSTAS AS a
+            INNER JOIN TB_007_PERGUNTAS AS b ON a.fk_co_pergunta = b.pk_co_pergunta
+            INNER JOIN TB_005_DESCRITORES AS c ON b.fk_co_descritor = c.pk_id_descritor
+            INNER JOIN TB_006_DISCIPLINA AS d ON b.fk_co_disciplina = d.pk_co_disciplina
+            WHERE 1=1
+        """
+        params = []
+        if modulo:
+            query += " AND b.pk_co_pergunta = ?"
+            params.append(modulo)
+        if disciplina:
+            query += " AND d.pk_co_disciplina = ?"
+            params.append(disciplina)
+        if descritor:
+            query += " AND c.pk_id_descritor = ?"
+            params.append(descritor)
 
+        cursor.execute(query, params)
+        columns = [column[0] for column in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    def insert_resposta_completa(self, texto, alternativa, pergunta_id, correta):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            INSERT INTO TB_008_RESPOSTAS (NO_RESPOSTA, NO_ALTERNATIVA, FK_CO_PERGUNTA, CO_RESPOSTA_CORRETA)
+            VALUES (?, ?, ?, ?)
+        """, (texto, alternativa, pergunta_id, int(correta)))
+        self.conn.commit()
+
+    def update_resposta_completa(self, id_resposta, texto, alternativa, correta):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            UPDATE TB_008_RESPOSTAS
+            SET NO_RESPOSTA = ?, NO_ALTERNATIVA = ?, CO_RESPOSTA_CORRETA = ?
+            WHERE CO_RESPOSTA = ?
+        """, (texto, alternativa, int(correta), id_resposta))
+        self.conn.commit()
+
+    def delete_resposta(self, id_resposta):
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM TB_008_RESPOSTAS WHERE CO_RESPOSTA = ?", (id_resposta,))
+        self.conn.commit()
+
+
+    
 
     def get_respostas(self, pergunta_id=None):
         cursor = self.conn.cursor()
@@ -142,32 +188,7 @@ class DatabaseConnection:
         rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
         cursor.close()
         return rows
-
-    def insert_resposta(self, texto_resposta, pergunta_id, resposta_correta):
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            INSERT INTO TB_008_RESPOSTAS (NO_RESPOSTA, FK_CO_PERGUNTA, CO_RESPOSTA_CORRETA)
-            VALUES (?, ?, ?)
-        """, texto_resposta, pergunta_id, resposta_correta)
-        self.conn.commit()
-        cursor.close()
-
-    def update_resposta(self, resposta_id, texto_resposta, pergunta_id, resposta_correta):
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            UPDATE TB_008_RESPOSTAS
-            SET NO_RESPOSTA = ?, FK_CO_PERGUNTA = ?, CO_RESPOSTA_CORRETA = ?
-            WHERE CO_RESPOSTA = ?
-        """, texto_resposta, pergunta_id, resposta_correta, resposta_id)
-        self.conn.commit()
-        cursor.close()
-
-    def delete_resposta(self, resposta_id):
-        cursor = self.conn.cursor()
-        cursor.execute("DELETE FROM TB_008_RESPOSTAS WHERE CO_RESPOSTA = ?", resposta_id)
-        self.conn.commit()
-        cursor.close()
-    
+        
     # 🔐 Autenticação
     def autenticar_usuario(self,usuario, senha):
         cursor = self.conn.cursor()

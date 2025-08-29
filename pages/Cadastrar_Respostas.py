@@ -71,10 +71,9 @@ with col3:
     descritor_selecionado = st.selectbox("🧩 Tipo de Descritor", options=descritor_opcoes, format_func=lambda x: x["tipo"])
 
 filtro_modulo = None if modulo_selecionado == "Todos" else modulo_selecionado
-filtro_disciplina = disciplina_selecionada["id"]
-filtro_descritor = descritor_selecionado["id"]
+filtro_disciplina = disciplina_selecionada.get("id")
+filtro_descritor = descritor_selecionado.get("id")
 
-# 🔍 Buscar respostas filtradas
 respostas = db.get_respostas_com_filtros(filtro_modulo, filtro_disciplina, filtro_descritor)
 
 if not respostas:
@@ -135,13 +134,13 @@ if enviar:
 st.subheader(f"📋 {len(respostas)} resposta(s) encontrada(s)")
 
 for i, r in enumerate(respostas):
-    id_resposta = r.get('CO_RESPOSTA') or f"na_{i}"
-    texto = r.get('NO_RESPOSTA', '').strip()
-    alternativa = r.get('NO_ALTERNATIVA', '').strip()
-    correta = r.get('CO_RESPOSTA_CORRETA', False)
-    pergunta = r.get('NO_PERGUNTA', '').strip()
-    disciplina = r.get('NO_DISCIPLINA', '').strip()
-    descritor = r.get('CO_TIPO', '').strip()
+    id_resposta = r.get('co_resposta') or f"na_{i}"
+    texto = (r.get('no_resposta') or '').strip()
+    alternativa = (r.get('no_alternativa') or '').strip()
+    correta = r.get('co_resposta_correta', False)
+    pergunta = (r.get('no_pergunta') or '').strip()
+    disciplina = (r.get('no_disciplina') or '').strip()
+    descritor = (r.get('co_tipo') or '').strip()
 
     with st.expander(f"{alternativa}) {texto}"):
         st.markdown(f"""
