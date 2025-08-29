@@ -114,22 +114,23 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
         """)
         st.markdown("## 🧭 Navegação")
 
-        # 🔐 Botões de navegação permitidos
-        for mod_id in modulos_permitidos + [99]:  # 99 = botão de retorno
+        for mod_id in modulos_permitidos + [99]:
             if mod_id in botoes_paginas:
                 btn = botoes_paginas[mod_id]
-                if st.button(btn["label"], key=btn["key"]):
-                    st.switch_page(btn["page"])
+                chave_unica = f"{btn['key']}_{mod_id}_navegacao"
+            if st.button(btn["label"], key=chave_unica):
+               st.switch_page(btn["page"])
 
         st.markdown("---")
         st.markdown("## ⚙️   Cadastro")
 
-        # 🔐 Botões de cadastro permitidos
         for mod_id in [4, 5, 6, 7, 8]:
             if mod_id in modulos_permitidos and mod_id in botoes_paginas:
                 btn = botoes_paginas[mod_id]
-                if st.button(btn["label"], key=btn["key"]):
-                    st.switch_page(btn["page"])
+                chave_unica = f"{btn['key']}_{mod_id}_cadastro"
+            if st.button(btn["label"], key=chave_unica):
+               st.switch_page(btn["page"])
+
 
         st.markdown("---")
         st.markdown("### 📞   Suporte")
