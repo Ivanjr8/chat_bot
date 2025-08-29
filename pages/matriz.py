@@ -55,6 +55,7 @@ if conn:
                     st.success(f"✅ Módulo '{novo_nome}' adicionado com sucesso!")
                 except Exception as e:
                     st.error(f"❌ Erro ao adicionar módulo: {e}")
+                    st.rerun()
 
     # 🔧 Configurar acessos
     st.subheader("🔧 Configurar Acessos por Perfil")
