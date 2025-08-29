@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_modal import Modal
 from db_connection import DatabaseConnection
 
+  
 # Configuração da Página
 st.set_page_config(page_title="Simulado SAEB", page_icon="🧠", layout="wide")
 # Titulo da página
@@ -71,7 +72,6 @@ if "usuario" not in st.session_state:
 # 🔧 Estilo personalizado
 if "usuario" in st.session_state and "perfil" in st.session_state:
     perfil = st.session_state.perfil
-    #st.markdown(f"🔐 Perfil atual: **{perfil}**")
 
 # 🔍 Função para buscar acessos permitidos
 def buscar_acessos_permitidos(perfil):
@@ -138,7 +138,6 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
 
-        st.markdown("---")
         st.markdown("## ⚙️   Administrativo")
         for mod_id in modulos_permitidos:
             if mod_id in botoes_admin:
@@ -146,9 +145,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 chave_unica = f"{btn['key']}_{mod_id}_cadastro"
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
-        
-        
-        st.markdown("---")
+
         for mod_id in modulos_permitidos + [99]:
             if mod_id in botoes_retornar:
                 btn = botoes_retornar[mod_id]
@@ -165,8 +162,6 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
             st.switch_page("gemini.py")
             st.rerun()
 
-
-        with open("assets/style.css") as f:
-            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+        
 
             
