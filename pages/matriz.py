@@ -5,7 +5,6 @@ from db_connection import DatabaseConnection
 from decoradores import acesso_restrito
 
 
-
 # 🎯 Configuração da página
 st.set_page_config(page_title="Gestão de Acessos e Módulos", page_icon="🔐", layout="wide")
 st.title("🔐 Painel de Configuração de Acesso")
@@ -18,12 +17,6 @@ except FileNotFoundError:
     st.warning("⚠️ Arquivo de estilo não encontrado.")
 
     
-# Proteção para acesso não autorizado
-@acesso_restrito(id_modulo=6)
-def pagina_matriz():
-    #st.title("📊 Página da Matriz")
-    st.write("Bem-vindo à área de gestão da matriz. Aqui estão os dados estratégicos.")
-pagina_matriz()   
 
 # Conteúdo após login
 # 🔧 Estilo personalizado
@@ -312,3 +305,9 @@ if conn and engine:
     if st.button("💾 Salvar Acessos"):
         db.salvar_acessos(acessos_atualizados, df_acesso)
 
+# Proteção para acesso não autorizado
+@acesso_restrito(id_modulo=6)
+def pagina_matriz():
+    #st.title("📊 Página da Matriz")
+    st.write("Bem-vindo à área de gestão da matriz. Aqui estão os dados estratégicos.")
+pagina_matriz()  
