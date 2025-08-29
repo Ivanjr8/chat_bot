@@ -218,7 +218,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                         align-items: center;
                         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
                         transform: scale(1.02);
-                        text-decoration: none;
+                        text-decoration: none !important;
                     }
 
                     .custom-btn:hover {
