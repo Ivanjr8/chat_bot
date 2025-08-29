@@ -102,8 +102,8 @@ if conn:
                 "acesso": chave
             })
 
-   if st.button("💾 Salvar Acessos"):
-    erros = []
+    if st.button("💾 Salvar Acessos"):
+        erros = []
 
     # Gerar novo ID manualmente (caso id_acesso não seja IDENTITY)
     cursor.execute("SELECT ISNULL(MAX(id_acesso), 0) + 1 FROM TB_012_ACESSOS")
