@@ -105,14 +105,26 @@ if conn:
     if st.button("💾 Salvar Acessos"):
         erros = []
 
-    # Gerar novo ID manualmente (caso id_acesso não seja IDENTITY)
-    cursor.execute("SELECT ISNULL(MAX(id_acesso), 0) + 1 FROM TB_012_ACESSOS")
-    proximo_id = cursor.fetchone()[0]
+    # Perfis válidos
+    perfis_validos = set(df_acesso["perfil"].str.lower().str.strip().unique())
 
+    # Buscar próximo ID disponível
+    try:
+        cursor.execute("SELECT ISNULL(MAX(id_acesso), 0) + 1 FROM TB_012_ACESSOS")
+        proximo_id = cursor.fetchone()[0]
+    except Exception as e:
+        st.error(f"❌ Erro ao buscar próximo ID: {e}")
+        st.stop()
+
+    # Processar acessos
     for item in acessos_atualizados:
-        perfil = item["perfil"].strip().lower()
-        id_modulo = item["id_modulo"]
-        acesso = item["acesso"]
+        perfil = item.get("perfil", "").strip().lower()
+        id_modulo = item.get("id_modulo")
+        acesso = item.get("acesso", False)
+
+        if perfil not in perfis_validos:
+            erros.append(f"❌ Perfil inválido: {perfil}")
+            continue
 
         try:
             if acesso:
@@ -136,9 +148,13 @@ if conn:
         except Exception as e:
             erros.append(f"❌ Erro ao atualizar acesso de {perfil} ao módulo {id_modulo}: {e}")
 
+    # Feedback final
     if erros:
         for erro in erros:
             st.warning(erro)
     else:
-        conn.commit()
-        st.success("✅ Acessos atualizados com sucesso!")
+        try:
+            conn.commit()
+            st.success("✅ Acessos atualizados com sucesso!")
+        except Exception as e:
+            st.error(f"❌ Erro ao salvar alterações no banco: {e}")
