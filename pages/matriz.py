@@ -50,12 +50,12 @@ def salvar_acessos(acessos_atualizados, df_acesso, cursor, conn):
                         INSERT INTO TB_012_ACESSOS (perfil, id_modulo)
                         VALUES (?, ?)
                     """, perfil, id_modulo)
-                    
             else:
                 cursor.execute("""
-                    DELETE FROM TB_012_ACESSOS WHERE perfil = ? AND id_modulo = ?
-                """, perfil, id_modulo)
-
+                        DELETE FROM TB_012_ACESSOS
+                        WHERE LOWER(perfil) = ? AND id_modulo = ?
+                    """, perfil, id_modulo)
+                print(f"Removendo acesso: perfil={perfil}, id_modulo={id_modulo}")
         except Exception as e:
             erros.append(f"❌ Erro ao atualizar acesso de {perfil} ao módulo {id_modulo}: {e}")
 
