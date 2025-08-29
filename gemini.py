@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 from streamlit_modal import Modal
 from db_connection import DatabaseConnection
@@ -89,22 +88,19 @@ def buscar_acessos_permitidos(perfil):
 
 # 🗺️ Mapeamento de módulos para botões e páginas
 botoes_paginas = {
-    1: {"label": "🎓   Chatbot", "page": "pages/chatbot.py", "key": "btn_chatbot"},
-    2: {"label": "🖥️   Gerar Simulado", "page": "pages/Gerar_Simulado.py", "key": "btn_simulado"},
-    3: {"label": "✅   Teste de Conexão", "page": "pages/conn_azure.py", "key": "btn_azure"},
-}  
+    1: {"label": "🎓   Chatbot", "page": "pages/chatbot.py", "key": "btn_chatbot"},
+    2: {"label": "🖥️   Gerar Simulado", "page": "pages/Gerar_Simulado.py", "key": "btn_simulado"},
+    3: {"label": "✅   Teste de Conexão", "page": "pages/conn_azure.py", "key": "btn_azure"},
+}
+
 botoes_cadastro = {
-    4: {"label": "🗂️   Questões", "page": "pages/Cadastrar_Questões.py", "key": "btn_cadastrar"},
-    5: {"label": "🗂️   Respostas", "page": "pages/Cadastrar_Respostas.py", "key": "btn_cadastrar_respostas"},
-    6: {"label": "🗂️   Cadastrar Usuários", "page": "pages/Cadastrar_Usuarios.py", "key": "btn_cadastrar_usuarios"},
-    7: {"label": "🗂️   Cadastrar_Escolas", "page": "pages/Cadastrar_Escolas.py", "key": "btn_escolas"},
-    8: {"label": "🗂️   matriz", "page": "pages/matriz.py", "key": "btn_matriz"},#
-    99: {"label": "↩️   Retornar", "page": "gemini.py", "key": "btn_retornar"},  # acesso universal
-}   
-#botoes_admin = { 
-#   8: {"label": "🗂️   matriz", "page": "pages/matriz.py", "key": "btn_matriz"},
-    
-#}
+    4: {"label": "🗂️   Questões", "page": "pages/Cadastrar_Questões.py", "key": "btn_cadastrar"},
+    5: {"label": "🗂️   Respostas", "page": "pages/Cadastrar_Respostas.py", "key": "btn_cadastrar_respostas"},
+    6: {"label": "🗂️   Cadastrar Usuários", "page": "pages/Cadastrar_Usuarios.py", "key": "btn_cadastrar_usuarios"},
+    7: {"label": "🗂️   Cadastrar_Escolas", "page": "pages/Cadastrar_Escolas.py", "key": "btn_escolas"},
+    8: {"label": "🗂️   matriz", "page": "pages/matriz.py", "key": "btn_matriz"},
+    99: {"label": "↩️   Retornar", "page": "gemini.py", "key": "btn_retornar"},  # acesso universal
+}
 
 # 🔧 Conteúdo após login
 if "usuario" in st.session_state and "perfil" in st.session_state:
@@ -126,22 +122,22 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 chave_unica = f"{btn['key']}_{mod_id}_navegacao"
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
+
         st.markdown("---")
-        st.markdown("## ⚙️   Cadastro")
-        
+        st.markdown("## ⚙️   Cadastro")
+
         for mod_id in modulos_permitidos + [99]:
             if mod_id in botoes_cadastro:
                 btn = botoes_cadastro[mod_id]
                 chave_unica = f"{btn['key']}_{mod_id}_cadastro"
                 if st.button(btn["label"], key=chave_unica):
-                 st.switch_page(btn["page"])
-       
+                    st.switch_page(btn["page"])
+
         st.markdown("---")
-        st.markdown("## ⚙️   Administrativo")
-        
-            
+        st.markdown("## ⚙️   Administrativo")
+
         st.markdown("---")
-        st.markdown("### 📞   Suporte")
+        st.markdown("### 📞   Suporte")
         st.write("Email: suporte@meuapp.com")
 
         # 🚪 Botão para sair
@@ -150,6 +146,7 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 st.session_state.pop(key, None)
             st.switch_page("gemini.py")
             st.rerun()
+
 
         with open("assets/style.css") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
