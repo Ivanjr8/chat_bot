@@ -171,30 +171,29 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
         for mod_id in botoes_link_aluno:
             btn = botoes_link_aluno[mod_id]
             st.markdown(f"""
-            <a href="{btn['page']}" target="_blank">
-                <button style="
-                    background-color: #0000004c;                  /* Fundo semitransparente escuro */
-                    color: rgba(245, 245, 245, 0.849);            /* Cor clara para texto */
-                    text-align: left;                               /* Alinha texto à esquerda */
-                    padding-left: 12px;                             /* Espaço interno à esquerda */
-                    width: 400px;                                   /* Largura do botão */
-                    height: 20px;                                   /* Altura do botão */
-                    border: none;                                   /* Remove borda padrão */
-                    border-radius: 8px;                             /* Arredonda os cantos do botão */
-                    font-size: 16px;                                /* Tamanho da fonte */
-                    font-weight: bold;                              /* Texto em negrito */
-                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);        /* Sombra leve abaixo do botão */
-                    cursor: pointer;                                /* Cursor muda para "mãozinha" ao passar por cima */
-                    transition: background-color 0.3s ease-in-out;  /* Suaviza mudança de cor ao interagir */
-                    display: flex;                                  /* Usa layout flexível */
-                    justify-content: flex-start;                    /* Alinha conteúdo à esquerda */
-                    align-items: center;                            /* Centraliza verticalmente */
-                    padding-left: 12px;                             /* Espaço interno à esquerda (repetido) */
-                ">
-                    {btn['label']}
-                </button>
-            </a>
-        """, unsafe_allow_html=True)
+                    <a href="{btn['page']}" target="_blank" style="
+                        background-color: #0000004c;
+                        color: rgba(245, 245, 245, 0.849);
+                        text-align: left;
+                        padding-left: 12px;
+                        width: 240px;
+                        height: 30px;
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 16px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        transition: background-color 0.3s ease-in-out;
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: center;
+                        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+                        transform: scale(1.02);
+                        text-decoration: none;
+                    ">
+                        {btn['label']}
+                    </a>
+                """, unsafe_allow_html=True)
          # 🎓 Botões exclusivos para professores
         if perfil != "aluno":
             for mod_id in botoes_link_professor:
@@ -206,10 +205,10 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                         text-align: left;
                         padding-left: 12px;
                         width: 240px;
-                        height: 20px;
+                        height: 30px;
                         border: none;
                         border-radius: 8px;
-                        font-size: 14px;
+                        font-size: 16px;
                         font-weight: bold;
                         cursor: pointer;
                         transition: background-color 0.3s ease-in-out;
