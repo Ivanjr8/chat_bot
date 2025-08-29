@@ -206,6 +206,9 @@ with st.sidebar:
             st.switch_page("pages/Cadastrar_Respostas.py")
         if st.button("🗂️   Cadastrar Usuários", key="btn_cadastrar_usuarios"):
             st.switch_page("pages/Cadastrar_Usuarios.py")
+        if st.button("🗂️   Matriz", key="btn_Matriz"):
+            st.switch_page("pages/matriz.py")
+            
             st.markdown("---")
         
         st.markdown("---")
