@@ -26,6 +26,7 @@ if "perfil" not in st.session_state:
 def render():
     st.title("🤖 Chatbot")
     st.write("Conteúdo restrito aos perfis autorizados.")
+
 # Conexão com o banco
 db = DatabaseConnection()
 db.connect()
