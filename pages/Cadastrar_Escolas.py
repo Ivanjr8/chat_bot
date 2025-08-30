@@ -19,6 +19,10 @@ except FileNotFoundError:
 db = DatabaseConnection()
 db.connect()
 
+if not db.conn:
+    st.error("❌ Falha na conexão com o banco.")
+    st.stop()
+
 # Proteção com Redirect
 if "perfil" not in st.session_state:
     st.warning("⚠️ Você precisa estar logado para acessar esta página.")
