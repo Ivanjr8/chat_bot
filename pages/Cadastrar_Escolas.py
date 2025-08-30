@@ -66,12 +66,28 @@ botoes_cadastro = {
     9: {"label": "🗂️   Usuarios", "page": " pages/Cadastrar_Usuarios.py", "key": "btn_ Cadastrar_Usuarios"},
 }
 botoes_admin = {
-    6: {"label": "🗂️   matriz", "page": "pages/matriz.py", "key": "btn_matriz"},
     7: {"label": "✅   Teste de  Conexão", "page": "pages/conn_azure.py", "key": "conn_azure.py"},
-    
+    6: {"label": "🗂️   matriz", "page": "pages/matriz.py", "key": "btn_matriz"},
+        
 }
 botoes_retornar = {
     99: {"label": "↩️   Retornar", "page": "gemini.py", "key": "btn_retornar"},  # acesso universal
+}
+
+botoes_link_aluno = {
+    98: {
+        "label": "📊   Painel do Aluno",
+        "page": "https://app.powerbi.com/view?r=eyJrIjoiN2M2NWM1N2QtYWQ3My00NjM1LWFiMWQtMjg0YTIxMzMxNjNhIiwidCI6IjRhMjJmMTE2LTUxY2UtNGZlMy1hZWFhLTljNDYxNDNkMDg4YiJ9",
+        "key": "btn_powerbi"
+    }
+}
+
+botoes_link_professor = {
+    97: {
+        "label": "📊   Painel Professor",
+        "page": "https://app.powerbi.com/view?r=eyJrIjoiYTAzMWJhZGYtMzI1ZS00MzkwLThiOGYtOGEwNWU4ZDUzMGVjIiwidCI6IjRhMjJmMTE2LTUxY2UtNGZlMy1hZWFhLTljNDYxNDNkMDg4YiJ9",
+        "key": "btn_powerbi"
+    }
 }
 
 # 🔧 Conteúdo após login
@@ -108,7 +124,6 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
 
-        
         st.markdown("## ⚙️   Administrativo")
         for mod_id in modulos_permitidos:
             if mod_id in botoes_admin:
@@ -116,13 +131,91 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
                 chave_unica = f"{btn['key']}_{mod_id}_cadastro"
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
-         
+
         for mod_id in modulos_permitidos + [99]:
             if mod_id in botoes_retornar:
                 btn = botoes_retornar[mod_id]
                 chave_unica = f"{btn['key']}_{mod_id}_cadastro"
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
+        if perfil in ['Aluno', 'Administrador']:
+            for mod_id in botoes_link_aluno:
+                btn = botoes_link_aluno[mod_id]
+                st.markdown("""
+                <style>
+                    .custom-btn {
+                        background-color: #0000004c;
+                        color: rgba(245, 245, 245, 0.849) !important;
+                        text-align: left;
+                        padding-left: 12px;
+                        width: 240px;
+                        height: 40px;
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 16px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        transition: background-color 0.3s ease-in-out;
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: center;
+                        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+                        transform: scale(1.02);
+                        text-decoration: none !important;
+                    }
+
+                    .custom-btn:hover {
+                        background-color: #10b981;
+                        color: white;
+                    }
+                </style>
+            """, unsafe_allow_html=True)
+
+            st.markdown(f"""
+                <a href="{btn['page']}" target="_blank" class="custom-btn">
+                    {btn['label']}
+                </a>
+            """, unsafe_allow_html=True)
+         # 🎓 Botões exclusivos para Alunos
+        if perfil != "Aluno":
+            for mod_id in botoes_link_professor:
+                btn = botoes_link_professor[mod_id]
+                st.markdown("""
+                <style>
+                    .custom-btn {
+                        background-color: #0000004c;
+                        color: rgba(245, 245, 245, 0.849) !important;
+                        text-align: left;
+                        padding-left: 12px;
+                        width: 240px;
+                        height: 40px;
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 16px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        transition: background-color 0.3s ease-in-out;
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: center;
+                        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+                        transform: scale(1.02);
+                        text-decoration: none !important;
+                    }
+
+                    .custom-btn:hover {
+                        background-color: #10b981;
+                        color: white;
+                    }
+                </style>
+            """, unsafe_allow_html=True)
+
+            st.markdown(f"""
+                <a href="{btn['page']}" target="_blank" class="custom-btn">
+                    {btn['label']}
+                </a>
+            """, unsafe_allow_html=True)
+
         st.markdown("### 📞   Suporte")
         st.write("Email: suporte@meuapp.com")
 
