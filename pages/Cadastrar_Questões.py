@@ -1,6 +1,7 @@
 # app.py
 import streamlit as st
 from db_connection import DatabaseConnection
+from decoradores import acesso_restrito
 
 # Configuração da Página
 st.set_page_config(page_title="📚 CRUD Questões", layout="wide")
@@ -19,6 +20,23 @@ except FileNotFoundError:
 # 🔌 Conexão com o banco
 db = DatabaseConnection()
 db.connect()
+
+    
+# Proteção com Redirect
+if "perfil" not in st.session_state:
+    st.warning("⚠️ Você precisa estar logado para acessar esta página.")
+    st.switch_page("gemini.py")
+
+# Proteção básica
+if "perfil" not in st.session_state:
+    st.warning("⚠️ Você precisa estar logado para acessar esta página.")
+    st.stop()
+    
+@acesso_restrito(id_modulo=1)
+def render():
+    st.title("🤖 Chatbot")
+    st.write("Conteúdo restrito aos perfis autorizados.")
+    
 
 # 🔍 Filtros
 filtros = db.get_filtros_perguntas()

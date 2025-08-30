@@ -1,5 +1,6 @@
 import streamlit as st
 import pyodbc
+from decoradores import acesso_restrito
 
 with open("assets/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -66,7 +67,21 @@ def conectar_banco():
     except Exception as erro:
         st.error(f"❌ Erro ao conectar: {erro}")
         return None
+# Proteção com Redirect
+if "perfil" not in st.session_state:
+    st.warning("⚠️ Você precisa estar logado para acessar esta página.")
+    st.switch_page("gemini.py")
 
+# Proteção básica
+if "perfil" not in st.session_state:
+    st.warning("⚠️ Você precisa estar logado para acessar esta página.")
+    st.stop()
+    
+@acesso_restrito(id_modulo=1)
+def render():
+    st.title("🤖 Chatbot")
+    st.write("Conteúdo restrito aos perfis autorizados.")
+    
 # Executando dentro do Streamlit
 def executar_insert():
     conexao = conectar_banco()

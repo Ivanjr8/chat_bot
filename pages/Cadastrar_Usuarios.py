@@ -1,5 +1,6 @@
 import streamlit as st
 from db_connection import DatabaseConnection
+from decoradores import acesso_restrito
 
 
 # 🔧 Estilo personalizado
@@ -54,6 +55,21 @@ with st.sidebar:
 # 🔌 Conexão com o banco
 db = DatabaseConnection()
 db.connect()
+
+# Proteção com Redirect
+if "perfil" not in st.session_state:
+    st.warning("⚠️ Você precisa estar logado para acessar esta página.")
+    st.switch_page("gemini.py")
+
+# Proteção básica
+if "perfil" not in st.session_state:
+    st.warning("⚠️ Você precisa estar logado para acessar esta página.")
+    st.stop()
+    
+@acesso_restrito(id_modulo=1)
+def render():
+    st.title("🤖 Chatbot")
+    st.write("Conteúdo restrito aos perfis autorizados.")
 
 # 🔍 Selecionar usuário existente ou novo
 usuarios = db.get_usuarios()

@@ -6,7 +6,6 @@ from db_connection import DatabaseConnection
 from decoradores import acesso_restrito
 
 
-
 # 🎯 Configuração da página
 st.set_page_config(page_title="Gestão de Acessos e Módulos", page_icon="🔐", layout="wide")
 st.title("🔐 Painel de Configuração de Acesso")
@@ -17,8 +16,7 @@ try:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 except FileNotFoundError:
     st.warning("⚠️ Arquivo de estilo não encontrado.")
-    
-
+   
 
 # 🔌 Conexão com o banco
 db = DatabaseConnection()

@@ -19,11 +19,20 @@ except FileNotFoundError:
 db = DatabaseConnection()
 db.connect()
 
-# Proteção para acesso não autorizado
-@acesso_restrito(id_modulo=5)
-def pagina_matriz():
-    st.write("Bem-vindo à área de gestão da matriz. Aqui estão os dados estratégicos.")
-pagina_matriz() 
+# Proteção com Redirect
+if "perfil" not in st.session_state:
+    st.warning("⚠️ Você precisa estar logado para acessar esta página.")
+    st.switch_page("gemini.py")
+
+# Proteção básica
+if "perfil" not in st.session_state:
+    st.warning("⚠️ Você precisa estar logado para acessar esta página.")
+    st.stop()
+    
+@acesso_restrito(id_modulo=1)
+def render():
+    st.title("🤖 Chatbot")
+    st.write("Conteúdo restrito aos perfis autorizados.")
 
 # Conteúdo após login
 # 🔧 Estilo personalizado

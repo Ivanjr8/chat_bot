@@ -1,4 +1,5 @@
 import streamlit as st
+from decoradores import acesso_restrito
 
 with open("assets/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -10,6 +11,21 @@ st.title("🚧 Gerar Simulado - Página em Construção")
 # Adicionar Imagem 
 st.image("em_construcao.jpg", caption="Estamos trabalhando nisso!", width=300)
 
+# Proteção com Redirect
+if "perfil" not in st.session_state:
+    st.warning("⚠️ Você precisa estar logado para acessar esta página.")
+    st.switch_page("gemini.py")
+
+# Proteção básica
+if "perfil" not in st.session_state:
+    st.warning("⚠️ Você precisa estar logado para acessar esta página.")
+    st.stop()
+    
+@acesso_restrito(id_modulo=1)
+def render():
+    st.title("🤖 Chatbot")
+    st.write("Conteúdo restrito aos perfis autorizados.")
+    
 # 🧭 Barra lateral personalizada
 with st.sidebar:
         if "usuario" in st.session_state and "perfil" in st.session_state:
