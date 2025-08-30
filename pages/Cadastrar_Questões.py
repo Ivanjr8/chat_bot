@@ -15,8 +15,6 @@ try:
 except FileNotFoundError:
     st.warning("⚠️ Arquivo de estilo não encontrado.")
 
-
-
 # 🔌 Conexão com o banco
 db = DatabaseConnection()
 db.connect()

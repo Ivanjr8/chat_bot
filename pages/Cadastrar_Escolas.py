@@ -256,8 +256,7 @@ else:
                         st.rerun()
                     else:
                         st.error("Erro ao excluir.")
-                      
-
+ 
 st.markdown("---")
 
 # ➕ Adicionar nova escola
