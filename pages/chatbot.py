@@ -3,9 +3,10 @@ import google.generativeai as genai
 import requests
 from decoradores import acesso_restrito
 
-
+# Proteção com Redirect
 if "perfil" not in st.session_state:
-    st.switch_page("pages/login.py")
+    st.warning("⚠️ Você precisa estar logado para acessar esta página.")
+    st.switch_page("gemini.py")
 
 # Proteção básica
 if "perfil" not in st.session_state:
