@@ -3,12 +3,19 @@ import google.generativeai as genai
 import requests
 from decoradores import acesso_restrito
 
+
+if "perfil" not in st.session_state:
+    st.switch_page("pages/login.py")
+
+# Proteção básica
+if "perfil" not in st.session_state:
+    st.warning("⚠️ Você precisa estar logado para acessar esta página.")
+    st.stop()
+    
 @acesso_restrito(id_modulo=1)
 def render():
     st.title("🤖 Chatbot")
     st.write("Conteúdo restrito aos perfis autorizados.")
-
-st.write("Perfil atual:", st.session_state.get("perfil"))
 
 with open("assets/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
