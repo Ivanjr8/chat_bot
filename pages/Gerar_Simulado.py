@@ -10,7 +10,7 @@ st.set_page_config(page_title="Gerar Simulado", layout="wide")
 # Titulo da página
 st.title("🚧 Gerar Simulado - Página em Construção")
 # Adicionar Imagem 
-st.image("em_construcao.jpg", caption="Estamos trabalhando nisso!", width=300)
+st.image("em_construcao.jpg", caption="Estamos trabalhando nisso!", width=600)
 
 # Proteção com Redirect
 if "perfil" not in st.session_state:
