@@ -26,7 +26,14 @@ if "perfil" not in st.session_state:
 def render():
     st.title("🤖 Chatbot")
     st.write("Conteúdo restrito aos perfis autorizados.")
-    
+# Conexão com o banco
+db = DatabaseConnection()
+db.connect()
+
+if not db.conn:
+    st.error("❌ Falha na conexão com o banco.")
+    st.stop()
+        
 # Conteúdo após login
 # 🔧 Estilo personalizado
 if "usuario" in st.session_state and "perfil" in st.session_state:
