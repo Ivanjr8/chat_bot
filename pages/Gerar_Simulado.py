@@ -1,4 +1,5 @@
 import streamlit as st
+from db_connection import DatabaseConnection
 from decoradores import acesso_restrito
 
 with open("assets/style.css") as f:
