@@ -5,9 +5,10 @@ from decoradores import acesso_restrito
 
 @acesso_restrito(id_modulo=1)
 def render():
-    st.title("📊 Relatórios")
+    st.title("🤖 Chatbot")
     st.write("Conteúdo restrito aos perfis autorizados.")
 
+st.write("Perfil atual:", st.session_state.get("perfil"))
 
 with open("assets/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
