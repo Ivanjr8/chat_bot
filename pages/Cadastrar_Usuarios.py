@@ -44,8 +44,18 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
 def buscar_acessos_permitidos(perfil):
     try:
         cursor = db.conn.cursor()
-        cursor.execute("SELECT id_modulo FROM TB_012_ACESSOS WHERE LOWER(perfil) = ?", (perfil,))
-        return [row[0] for row in cursor.fetchall()]
+        cursor.execute(
+            "SELECT id_modulo FROM TB_012_ACESSOS WHERE LOWER(perfil) = ?",
+            (perfil,)
+        )
+        
+        # 🔽 Aqui entra sua ordenação personalizada
+        ordem_personalizada = [1, 2, 3, 4, 5, 6, 7, 9, 10, 97, 98, 99]
+        modulos_permitidos = [row[0] for row in cursor.fetchall()]
+        modulos_ordenados = [mod for mod in ordem_personalizada if mod in modulos_permitidos]
+        
+        return modulos_ordenados
+
     except Exception as e:
         st.error(f"Erro ao buscar acessos: {e}")
         return []
@@ -61,6 +71,7 @@ botoes_cadastro = {
     4: {"label": "🗂️   Respostas", "page": "pages/Cadastrar_Respostas.py", "key": "btn_cadastrar_respostas"},
     5: {"label": "🗂️   Escolas", "page": "pages/Cadastrar_Escolas.py", "key": "btn_escolas"},
     9: {"label": "🗂️   Usuários", "page": "pages/Cadastrar_Usuarios.py", "key": "btn_ Cadastrar_Usuarios"},
+    10: {"label": "🗂️   Professores", "page": "pages/Cadastrar_Professores.py", "key": "btn_ Cadastrar_Professores"},
 }
 botoes_admin = {
     7: {"label": "✅   Teste de  Conexão", "page": "pages/conn_azure.py", "key": "conn_azure.py"},
@@ -223,7 +234,6 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
             st.switch_page("gemini.py")
             st.rerun()  
 
-
 # Proteção com Redirect
 if "perfil" not in st.session_state:
     st.warning("⚠️ Você precisa estar logado para acessar esta página.")
@@ -233,7 +243,24 @@ if "perfil" not in st.session_state:
 if "perfil" not in st.session_state:
     st.warning("⚠️ Você precisa estar logado para acessar esta página.")
     st.stop()
-    
+
+# Inicializa variáveis de controle
+for k in ["mensagem_sucesso", "limpar_campos", "senha_atualizar", "novo_usuario", "nova_senha"]:
+    if k not in st.session_state:
+        st.session_state[k] = ""
+
+# Limpa campos após rerun, se necessário
+if st.session_state.limpar_campos:
+    st.session_state.senha_atualizar = ""
+    st.session_state.novo_usuario = ""
+    st.session_state.nova_senha = ""
+    st.session_state.limpar_campos = False
+
+# Exibe mensagem de sucesso após rerun
+if st.session_state.mensagem_sucesso:
+    st.success(st.session_state.mensagem_sucesso)
+    st.session_state.mensagem_sucesso = ""
+
 @acesso_restrito(id_modulo=1)
 def render():
     st.title("🤖 Chatbot")
@@ -249,26 +276,30 @@ if usuario_selecionado != "➕ Novo usuário":
     try:
         usuario_data = next(u for u in usuarios if u.get("usuario") == usuario_selecionado)
         usuario = usuario_data.get("usuario", "")
-        perfil_atual = usuario_data.get("perfil", "Aluno")  # Valor padrão seguro
+        perfil_atual = usuario_data.get("perfil", "Aluno")
     except StopIteration:
         st.error(f"❌ Usuário '{usuario_selecionado}' não encontrado.")
         st.stop()
 
-    senha = st.text_input("🔒 Nova senha", type="password")
-    perfil = st.selectbox(
+    st.text_input("🔒 Nova senha", type="password", key="senha_atualizar")
+    st.selectbox(
         "🎓 Perfil",
         ["Aluno", "Professor", "Administrador"],
-        index=["Aluno", "Professor", "Administrador"].index(perfil_atual)
+        index=["Aluno", "Professor", "Administrador"].index(perfil_atual),
+        key="perfil_atualizar"
     )
 
     col1, col2 = st.columns(2)
     with col1:
         if st.button("💾 Atualizar"):
-            if senha.strip():
-                resultado = db.merge_usuario(usuario.strip(), senha.strip(), perfil)
+            senha = st.session_state.senha_atualizar.strip()
+            perfil = st.session_state.perfil_atualizar
+            if senha:
+                resultado = db.merge_usuario(usuario.strip(), senha, perfil)
                 if resultado == "atualizado":
-                    st.success(f"🔁 Usuário '{usuario}' atualizado com sucesso!")
-                    st.rerun()  # 🔄 Reinicia a aplicação após sucesso
+                    st.session_state.mensagem_sucesso = f"🔁 Usuário '{usuario}' atualizado com sucesso!"
+                    st.session_state.limpar_campos = True
+                    st.rerun()
                 else:
                     st.error(f"❌ Erro: {resultado}")
             else:
@@ -278,20 +309,26 @@ if usuario_selecionado != "➕ Novo usuário":
         if st.button("🗑️ Excluir"):
             resultado = db.delete_usuario(usuario)
             if resultado is True:
-                st.success(f"🗑️ Usuário '{usuario}' excluído com sucesso!")
-                st.rerun() # 🔄 Reinicia a aplicação após sucesso
+                st.session_state.mensagem_sucesso = f"🗑️ Usuário '{usuario}' excluído com sucesso!"
+                st.rerun()
             else:
                 st.error(f"❌ Erro ao excluir: {resultado}")
+
 # ➕ Adicionar novo usuário
 else:
-    usuario = st.text_input("👤 Nome de usuário")
-    senha = st.text_input("🔒 Senha", type="password")
-    perfil = st.selectbox("🎓 Perfil", ["Aluno", "Professor", "Administrador"])
+    st.text_input("👤 Nome de usuário", key="novo_usuario")
+    st.text_input("🔒 Senha", type="password", key="nova_senha")
+    st.selectbox("🎓 Perfil", ["Aluno", "Professor", "Administrador"], key="novo_perfil")
+
     if st.button("💾 Cadastrar novo"):
-        if usuario.strip() and senha.strip():
-            resultado = db.merge_usuario(usuario.strip(), senha.strip(), perfil)
+        usuario = st.session_state.novo_usuario.strip()
+        senha = st.session_state.nova_senha.strip()
+        perfil = st.session_state.novo_perfil
+        if usuario and senha:
+            resultado = db.merge_usuario(usuario, senha, perfil)
             if resultado == "inserido":
-                st.success(f"✅ Usuário '{usuario}' cadastrado com sucesso!")
+                st.session_state.mensagem_sucesso = f"✅ Usuário '{usuario}' cadastrado com sucesso!"
+                st.session_state.limpar_campos = True
                 st.rerun()
             else:
                 st.error(f"❌ Erro: {resultado}")
@@ -299,3 +336,5 @@ else:
             st.warning("⚠️ Preencha todos os campos.")
 
 db.close()
+
+

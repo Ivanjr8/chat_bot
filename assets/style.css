@@ -1,4 +1,33 @@
 
+[data-testid="stAppViewContainer"] .stButton button:hover {
+    background-color: #0000004c;                  /* Muda cor de fundo ao passar o mouse */
+    color: rgb(225, 215, 215);                              /* Muda cor do texto */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);  /* Aumenta a sombra */
+    transform: scale(1.02);                    /* Leve aumento no tamanho */
+    transition: all 0.3s ease-in-out;          /* Suaviza a animação */
+}
+
+[data-testid="stAppViewContainer"] .stButton button {
+    background-color: #0000004c;                  /* Fundo semitransparente escuro */
+    color: rgba(245, 245, 245, 0.849);            /* Cor clara para texto */
+    text-align: left;                               /* Alinha texto à esquerda */
+    padding-left: 12px;                             /* Espaço interno à esquerda */
+    width: 240px;                                   /* Largura do botão */
+    height: 20px;                                   /* Altura do botão */
+    border: none;                                   /* Remove borda padrão */
+    border-radius: 8px;                             /* Arredonda os cantos do botão */
+    font-size: 14px;                                /* Tamanho da fonte */
+    font-weight: bold;                              /* Texto em negrito */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);        /* Sombra leve abaixo do botão */
+    cursor: pointer;                                /* Cursor muda para "mãozinha" ao passar por cima */
+    transition: background-color 0.3s ease-in-out;  /* Suaviza mudança de cor ao interagir */
+    display: flex;                                  /* Usa layout flexível */
+    justify-content: flex-start;                    /* Alinha conteúdo à esquerda */
+    align-items: center;                            /* Centraliza verticalmente */
+    padding-left: 12px;                             /* Espaço interno à esquerda (repetido) */
+    
+}
+
 /* Esconde o nome da página na sidebar */
 [data-testid="stSidebarNav"] {
     display: none;
@@ -6,8 +35,8 @@
 
 
 [data-testid="stSidebar"] {
-    background: linear-gradient( #000000, #0000004c, #06080075);  /* Fundo com gradiente escuro */
-    color: white;                                                     /* Cor do texto */
+    /*background: linear-gradient( #000000, #0000004c, #06080075);  /* Fundo com gradiente escuro */
+    color: rgb(16, 0, 0);                                                     /* Cor do texto */
     box-shadow: 0 0 10px rgba(0,0,0,0.5);                             /* Sombra ao redor da sidebar */
     padding: 10px;                                                      /* Espaçamento interno */
     font-size: 14px;                                                    /* Tamanho da fonte */

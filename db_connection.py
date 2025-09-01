@@ -24,6 +24,8 @@ class DatabaseConnection:
     def close(self):
         if self.conn:
             self.conn.close()
+
+
   # Perguntas  
   
     def get_filtros_perguntas(self):
@@ -172,9 +174,6 @@ class DatabaseConnection:
         cursor.execute("DELETE FROM TB_008_RESPOSTAS WHERE CO_RESPOSTA = ?", (id_resposta,))
         self.conn.commit()
 
-
-    
-
     def get_respostas(self, pergunta_id=None):
         cursor = self.conn.cursor()
         if pergunta_id:
@@ -320,8 +319,259 @@ class DatabaseConnection:
         """, (usuario_id, modulo_id, permitido, usuario_id, modulo_id, permitido))
         self.conn.commit()
         cursor.close()
+# professores
 
-# Escolas        
+    def professores_por_escola(self, escola_id):
+        if not self.conn:
+            self.connect()
+        cursor = self.conn.cursor()
+        query = """
+            SELECT 
+                p.PK_CO_PROFESSOR,
+                p.NO_NOME_PROFESSOR,
+                e.PK_ID_ESCOLA,
+                e.NO_ESCOLA
+            FROM TB_013_PROFESSORES p
+            JOIN TB_002_ESCOLAS e ON p.FK_ID_ESCOLA = e.PK_ID_ESCOLA
+            WHERE p.FK_ID_ESCOLA = ?
+        """
+        cursor.execute(query, (escola_id,))
+        columns = [column[0] for column in cursor.description]
+        results = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        cursor.close()
+        return results
+        
+    def inserir_professor(self, id_escola, nome, id_disciplina):
+        if not self.conn:
+            self.connect()
+        cursor = self.conn.cursor()
+        query = """
+            INSERT INTO [dbo].[TB_013_PROFESSORES] (FK_ID_ESCOLA, NO_NOME_PROFESSOR,FK_CO_DISCIPLINA)
+            VALUES (?, ?)
+        """
+        try:
+            cursor.execute(query, (id_escola, nome, id_disciplina))
+            self.conn.commit()
+            cursor.close()
+            return True
+        except Exception as e:
+            cursor.close()
+            return f"Erro ao cadastrar: {str(e)}"
+
+# Disciplinas
+    def disciplinas(self):
+        try:
+            cursor = self.conn.cursor()
+            query = "SELECT PK_CO_DISCIPLINA, NO_DISCIPLINA FROM TB_006_DISCIPLINA"
+            cursor.execute(query)
+            resultados = cursor.fetchall()
+            return [{"PK_CO_DISCIPLINA": r[0], "NO_DISCIPLINA": r[1].strip()} for r in resultados]
+        except Exception as e:
+            return []
+# Descritores
+    def descritores():
+        from db_connection import DatabaseConnection  # ajuste conforme seu projeto
+
+        db = DatabaseConnection()
+        db.connect()
+
+        cursor = db.conn.cursor()
+        query = """
+            SELECT PK_ID_DESCRITOR, FK_CO_DISCIPLINA, no_descritor
+            FROM TB_005_DESCRITORES
+        """
+        cursor.execute(query)
+
+        columns = [column[0] for column in cursor.description]
+        resultados = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        cursor.close()
+        db.close()
+        return resultados
+# Perguntas
+    def perguntas():
+        from db_connection import DatabaseConnection  # ajuste conforme sua estrutura
+
+        db = DatabaseConnection()
+        db.connect()
+
+        cursor = db.conn.cursor()
+        query = """
+            SELECT 
+                PK_CO_PERGUNTA,
+                NO_PERGUNTA,
+                DE_PERGUNTA,
+                FK_CO_DESCRITOR,
+                FK_CO_DISCIPLINA
+            FROM TB_007_PERGUNTAS
+        """
+        cursor.execute(query)
+
+        columns = [column[0] for column in cursor.description]
+        resultados = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        cursor.close()
+        db.close()
+        return resultados
+
+# Simulados
+
+    def insert_simulado(co_simulado, fk_escola, fk_professor, fk_pergunta, fk_disciplina, fk_descritor):
+        from db_connection import DatabaseConnection  # ajuste conforme sua estrutura
+
+        db = DatabaseConnection()
+        db.connect()
+
+        cursor = db.conn.cursor()
+        query = """
+            INSERT INTO TB_014_SIMULADO (
+                CO_SIMULADO,
+                FK_CO_ESCOLA,
+                FK_C_PROFESSOR,
+                FK_CO_PERGUNTA,
+                FK_CO_DISCIPLINA,
+                FK_ID_DESCRITOR
+            ) VALUES (?, ?, ?, ?, ?, ?)
+        """
+        cursor.execute(query, (
+            co_simulado,
+            fk_escola,
+            fk_professor,
+            fk_pergunta,
+            fk_disciplina,
+            fk_descritor
+        ))
+        db.conn.commit()
+        cursor.close()
+        db.close()
+    
+    def close(self):
+        if self.conn:
+            self.conn.close()
+            self.conn = None
+# Escolas  
+
+    def buscar_escolas():
+        from db_connection import DatabaseConnection  # ajuste conforme sua estrutura
+
+        db = DatabaseConnection()
+        db.connect()
+
+        cursor = db.conn.cursor()
+        query = "SELECT PK_ID_ESCOLA, NO_ESCOLA FROM TB_002_ESCOLAS"
+        cursor.execute(query)
+
+        columns = [column[0] for column in cursor.description]
+        resultados = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        cursor.close()
+        db.close()
+        return resultados
+# professores
+
+   
+    def get_professores(self):
+        try:
+            cursor = self.conn.cursor()
+            query = """
+                SELECT 
+                    a.FK_ID_ESCOLA,
+                    a.NO_NOME_PROFESSOR,
+                    a.FK_CO_DISCIPLINA,
+                    c.NO_ESCOLA
+                FROM TB_013_PROFESSORES AS a
+                INNER JOIN TB_006_DISCIPLINA AS b ON a.FK_CO_DISCIPLINA = b.PK_CO_DISCIPLINA
+                INNER JOIN TB_002_ESCOLAS AS c ON a.FK_ID_ESCOLA = c.PK_ID_ESCOLA
+            """
+            cursor.execute(query)
+            resultados = cursor.fetchall()
+
+            print(f"🔍 Registros encontrados: {len(resultados)}")
+
+            return [
+                {
+                    "id_escola": r[0],
+                    "nome": r[1],
+                    "id_disciplina": r[2],
+                    "nome_escola": r[3]
+                }
+                for r in resultados
+            ]
+        except Exception as e:
+            print(f"❌ Erro na consulta: {e}")
+            return []
+
+    def listar_professores(conn, filtro_nome=None):
+        cursor = conn.cursor()
+        query = """
+        SELECT a.PK_ID_PROFESSOR, a.NO_NOME_PROFESSOR, a.FK_ID_ESCOLA, a.FK_CO_DISCIPLINA,
+            c.NO_ESCOLA, b.NO_DISCIPLINA
+        FROM TB_013_PROFESSORES a
+        INNER JOIN TB_006_DISCIPLINA b ON a.FK_CO_DISCIPLINA = b.PK_CO_DISCIPLINA
+        INNER JOIN TB_002_ESCOLAS c ON a.FK_ID_ESCOLA = c.PK_ID_ESCOLA
+        """
+        if filtro_nome:
+            query += " WHERE a.NO_NOME_PROFESSOR LIKE ?"
+            cursor.execute(query, f"%{filtro_nome}%")
+        else:
+            cursor.execute(query)
+        return cursor.fetchall()
+
+    # ➕ Inserir professores
+    def inserir_professor(conn, nome, id_escola, id_disciplina):
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO TB_013_PROFESSORES (NO_NOME_PROFESSOR, FK_ID_ESCOLA, FK_CO_DISCIPLINA)
+            VALUES (?, ?, ?)
+        """, nome, id_escola, id_disciplina)
+        conn.commit()
+    # 📝 Atualizar professores
+    def atualizar_professor(conn, id_professor, novo_nome, nova_escola, nova_disciplina):
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE TB_013_PROFESSORES
+            SET NO_NOME_PROFESSOR = ?, FK_ID_ESCOLA = ?, FK_CO_DISCIPLINA = ?
+            WHERE PK_ID_PROFESSOR = ?
+        """, novo_nome, nova_escola, nova_disciplina, id_professor)
+        conn.commit()
+
+    # 🗑️ Excluir professores
+    def listar_disciplinas(conn):
+        cursor = conn.cursor()
+        cursor.execute("SELECT PK_CO_DISCIPLINA, NO_DISCIPLINA FROM TB_006_DISCIPLINA")
+        return cursor.fetchall()
+    
+    def buscar_escolas():
+        from db_connection import DatabaseConnection  # ajuste conforme sua estrutura
+
+        db = DatabaseConnection()
+        db.connect()
+
+        cursor = db.conn.cursor()
+        query = "SELECT PK_ID_ESCOLA, NO_ESCOLA FROM TB_002_ESCOLAS"
+        cursor.execute(query)
+
+        columns = [column[0] for column in cursor.description]
+        resultados = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        cursor.close()
+        db.close()
+        return resultados
+    
+    def buscar_disciplinas(self, filtro_nome=None):
+        cursor = self.conn.cursor()
+        query = "SELECT * FROM [dbo].[TB_006_DISCIPLINA]"
+        params = []
+
+        if filtro_nome:
+            query += " WHERE NO_DISCIPLINA LIKE ?"
+            params.append(f"%{filtro_nome}%")
+
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        return [dict(zip([column[0] for column in cursor.description], row)) for row in rows]
+    
+# ------------------------ escolas    
     def get_escolas(self, filtro_nome=None):
         cursor = self.conn.cursor()
         query = "SELECT PK_ID_ESCOLA, NO_ESCOLA FROM TB_002_ESCOLAS WHERE 1=1"
@@ -332,32 +582,103 @@ class DatabaseConnection:
         cursor.execute(query, params)
         rows = cursor.fetchall()
         return [dict(zip([column[0] for column in cursor.description], row)) for row in rows]
-
-    def insert_escola(self, nome_escola):
+ 
+    def get_escola_por_id(self, id_escola):
+        conn = self.connect()
+        if conn:
+            try:
+                cursor = conn.cursor()
+                query = "SELECT PK_ID_ESCOLA FROM TB_002_ESCOLAS WHERE PK_ID_ESCOLA = ?"
+                cursor.execute(query, (id_escola,))
+                return cursor.fetchone() is not None
+            except Exception as e:
+                st.error(f"Erro ao verificar ID: {e}")
+                return False
+            finally:
+                conn.close()
+        return False
+    def insert_escola(self, id_escola,nome_escola):
         cursor = self.conn.cursor()
-        query = """
-            INSERT INTO TB_002_ESCOLAS (NO_ESCOLA)
-            OUTPUT INSERTED.PK_ID_ESCOLA
-            VALUES (?)
-        """
-        cursor.execute(query, (nome_escola,))
-        escola_id = cursor.fetchone()[0]
+        cursor.execute("""
+             INSERT INTO TB_002_ESCOLAS (PK_ID_ESCOLA, NO_ESCOLA)
+             VALUES (?, ?)
+        """, (id_escola, nome_escola))
         self.conn.commit()
-        return escola_id
+        
+    # def insert_escola(self, id_escola, nome_escola):
+    #     try:
+    #         conn = self.connect()
+    #         if not conn:
+    #             st.error("❌ Falha na conexão com o banco de dados.")
+    #             return False
 
-    def update_escola(self, escola_id, novo_nome):
-        cursor = self.conn.cursor()
-        query = "UPDATE TB_002_ESCOLAS SET NO_ESCOLA = ? WHERE PK_ID_ESCOLA = ?"
-        cursor.execute(query, (novo_nome, escola_id))
-        self.conn.commit()
-        return cursor.rowcount > 0
+    #         with conn:
+    #             cursor = conn.cursor()
+    #             query = """
+    #                 INSERT INTO TB_002_ESCOLAS (PK_ID_ESCOLA, NO_ESCOLA)
+    #                 VALUES (?, ?)
+    #             """
+    #             cursor.execute(query, (id_escola.strip(), nome_escola.strip()))
+    #         return True
+
+    #     except Exception as e:
+    #         st.error("❌ Erro ao inserir escola.")
+    #         st.write(e)  # Exibe o erro técnico para depuração
+    #         return False
+
+    def update_escola(self, id_atual, novo_id=None, novo_nome=None):
+        try:
+            cursor = self.conn.cursor()
+
+            # Monta dinamicamente o SQL com base nos campos que serão atualizados
+            campos = []
+            valores = []
+
+            if novo_id and novo_id != id_atual:
+                campos.append("PK_ID_ESCOLA = ?")
+                valores.append(novo_id)
+
+            if novo_nome:
+                campos.append("NO_ESCOLA = ?")
+                valores.append(novo_nome)
+
+            # Se nenhum campo foi marcado, não faz nada
+            if not campos:
+                return False
+
+            # Adiciona o ID atual para o WHERE
+            valores.append(id_atual)
+
+            sql = f"""
+                UPDATE TB_002_ESCOLAS
+                SET {', '.join(campos)}
+                WHERE PK_ID_ESCOLA = ?
+            """
+
+            cursor.execute(sql, valores)
+            self.conn.commit()
+            return True
+
+        except Exception as e:
+            print("Erro ao atualizar escola:", e)
+            return False
 
     def delete_escola(self, escola_id):
-        cursor = self.conn.cursor()
-        query = "DELETE FROM TB_002_ESCOLAS WHERE PK_ID_ESCOLA = ?"
-        cursor.execute(query, (escola_id,))
-        self.conn.commit()
-        return cursor.rowcount > 0
+        conn = self.connect()
+        if conn:
+            try:
+                cursor = conn.cursor()
+                query = "DELETE FROM TB_002_ESCOLAS WHERE PK_ID_ESCOLA = ?"
+                cursor.execute(query, (escola_id,))
+                conn.commit()
+                return cursor.rowcount > 0
+            except Exception as e:
+                st.error(f"Erro ao excluir escola: {e}")
+                return False
+            finally:
+                conn.close()
+        return False
+
 
 # Matriz
 
@@ -409,4 +730,78 @@ class DatabaseConnection:
                 st.success("✅ Acessos atualizados com sucesso!")
             except Exception as e:
                 st.error(f"❌ Erro ao salvar alterações no banco: {e}")    
+                
+class DatabaseTester:
+    def __init__(self):
+        try:
+            db = st.secrets["database"]
+            self.connection_string = (
+                f"DRIVER={{{db['driver']}}};"
+                f"SERVER={db['server']};"
+                f"DATABASE={db['database']};"
+                f"UID={db['uid']};"
+                f"PWD={db['pwd']};"
+                f"Encrypt={db['encrypt']};"
+                f"TrustServerCertificate={db['trust_cert']};"
+                f"Connection Timeout={db['timeout']};"
+            )
+        except Exception as e:
+            st.error(f"❌ Erro ao carregar configurações: {e}")
+            self.connection_string = None
+
+        self.conn = None
+
+    def connect(self):
+        if not self.connection_string:
+            st.warning("⚠️ String de conexão não está definida.")
+            return None
+        try:
+            self.conn = pyodbc.connect(self.connection_string)
+            st.success("✅ Conexão estabelecida com sucesso!")
+            return self.conn
+        except Exception as e:
+            st.error(f"❌ Erro ao conectar: {e}")
+            return None
+
+    def listar_tabelas(self):
+        if not self.conn:
+            st.warning("⚠️ Conexão não está ativa.")
+            return
+
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT name FROM sys.tables WHERE name LIKE 'TB%'")
+            resultados = cursor.fetchall()
+
+            if resultados:
+                st.subheader("📋 Tabelas encontradas:")
+                for row in resultados:
+                    st.write(f"🔹 {row.name}")
+            else:
+                st.info("ℹ️ Nenhuma tabela encontrada com prefixo 'TB'.")
+        except Exception as e:
+            st.error(f"❌ Erro ao executar consulta: {e}")
+        finally:
+            cursor.close()
+            self.conn.close()
+
+def get_escola_por_id(self, id_escola):
+    conn = self.connect()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            query = "SELECT * FROM TB_002_ESCOLAS WHERE PK_ID_ESCOLA = ?"
+            cursor.execute(query, (id_escola,))
+            row = cursor.fetchone()
+            if row:
+                columns = [column[0] for column in cursor.description]
+                return dict(zip(columns, row))
+            return None
+        except Exception as e:
+            st.error(f"Erro ao buscar escola: {e}")
+            return None
+        finally:
+            conn.close()
+    return None
+
     

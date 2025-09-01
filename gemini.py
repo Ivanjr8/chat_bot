@@ -1,7 +1,14 @@
 import streamlit as st
 from streamlit_modal import Modal
+#from db_connection import DatabaseConnection
 from db_connection import DatabaseConnection
-
+# from db_connection1 import (
+#     buscar_escolas,
+#     buscar_alunos_por_escola,
+#     buscar_simulados_e_professores,
+#     consultar_simulado,
+#     salvar_resultado
+# )
 
   
 # Configuração da Página
@@ -78,8 +85,18 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
 def buscar_acessos_permitidos(perfil):
     try:
         cursor = db.conn.cursor()
-        cursor.execute("SELECT id_modulo FROM TB_012_ACESSOS WHERE LOWER(perfil) = ?", (perfil,))
-        return [row[0] for row in cursor.fetchall()]
+        cursor.execute(
+            "SELECT id_modulo FROM TB_012_ACESSOS WHERE LOWER(perfil) = ?",
+            (perfil,)
+        )
+        
+        # 🔽 Aqui entra sua ordenação personalizada
+        ordem_personalizada = [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 97, 98, 99]
+        modulos_permitidos = [row[0] for row in cursor.fetchall()]
+        modulos_ordenados = [mod for mod in ordem_personalizada if mod in modulos_permitidos]
+        
+        return modulos_ordenados
+
     except Exception as e:
         st.error(f"Erro ao buscar acessos: {e}")
         return []
@@ -95,6 +112,8 @@ botoes_cadastro = {
     4: {"label": "🗂️   Respostas", "page": "pages/Cadastrar_Respostas.py", "key": "btn_cadastrar_respostas"},
     5: {"label": "🗂️   Escolas", "page": "pages/Cadastrar_Escolas.py", "key": "btn_escolas"},
     9: {"label": "🗂️   Usuários", "page": "pages/Cadastrar_Usuarios.py", "key": "btn_ Cadastrar_Usuarios"},
+    10: {"label": "🗂️   Professores", "page": "pages/Cadastrar_Professores.py", "key": "btn_ Cadastrar_Professores"},
+    11: {"label": "🗂️   Disciplina", "page": "pages/Cadastrar_Disciplina.py", "key": "btn_ Cadastrar_Disciplina"},
 }
 botoes_admin = {
     7: {"label": "✅   Teste de  Conexão", "page": "pages/conn_azure.py", "key": "conn_azure.py"},
@@ -138,7 +157,8 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
         🔐 Perfil: **{perfil}**
         """)
         st.markdown("## 🧭 Navegação")
-
+             
+               
         for mod_id in modulos_permitidos:
             if mod_id in botoes_paginas:
                 btn = botoes_paginas[mod_id]
@@ -167,8 +187,12 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
             if mod_id in botoes_retornar:
                 btn = botoes_retornar[mod_id]
                 chave_unica = f"{btn['key']}_{mod_id}_cadastro"
+               # 🔍 Exibir informações de debug
+                             
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
+        
+        
         if perfil in ['Aluno', 'Administrador']:
             for mod_id in botoes_link_aluno:
                 btn = botoes_link_aluno[mod_id]
