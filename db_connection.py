@@ -116,6 +116,30 @@ WHERE C.CO_SIMULADO = ?
 
         return df
     
+    # salvar_resultado_resposta
+    
+    def calcular_tentativa(self, co_simulado, aluno_id):
+        query = """
+            SELECT ISNULL(IIF(MAX(CO_TENTATIVA) > 0, MAX(CO_TENTATIVA) + 1, 1), 1) AS TENTATIVA
+            FROM [SMULADO].[DBO].[TB_009_RESULTADOS]
+            WHERE FK_CO_SIMULADO = ?
+              AND FK_ID_ALUNO = ?
+        """
+        cursor = self.conn.cursor()
+        cursor.execute(query, (co_simulado, aluno_id))
+        resultado = cursor.fetchone()
+        return resultado.TENTATIVA if resultado else 1
+
+    
+    def salvar_resultado_resposta(self, pergunta_id, resposta_aluno, disciplina_id, correta, co_simulado, aluno_id,co_tentativa):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            INSERT INTO dbo.TB_009_RESULTADOS (FK_CO_PERGUNTA, CO_RESPOSTA_ALUNO, FK_CO_DISCIPLINA, CO_RESPOSTA_CORRETA, FK_CO_SIMULADO,  FK_ID_ALUNO, CO_TENTATIVA )
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (pergunta_id, resposta_aluno, disciplina_id, correta, co_simulado, aluno_id,co_tentativa))
+        self.conn.commit()
+        
+    
     def salvar_resultado(self, titulo, descricao, id_disciplina, id_descritor):
         cursor = self.conn.cursor()
         cursor.execute("""

@@ -409,14 +409,22 @@ if st.session_state.aluno_id:
                             else:
                                 st.success(f"✅ Questão {num}: resposta correta!")
 
+
+                            # Calcula a tentativa
+                            co_tentativa = db.calcular_tentativa(
+                                co_simulado=st.session_state.co_simulado,
+                                aluno_id=st.session_state.aluno_id
+                            )
+                                                       
                             # 💾 Salvando no banco
-                            sucesso = db.salvar_resultado(
+                            sucesso = db.salvar_resultado_resposta(
                                 pergunta_id=info["id_pergunta"],
                                 resposta_aluno=resp_cod,
                                 disciplina_id=info["disciplina"],
                                 correta=info["correta"],
                                 co_simulado=st.session_state.co_simulado,
                                 aluno_id=st.session_state.aluno_id
+                                co_tentativa=co_tentativa
                             )
 
                             if sucesso:
@@ -433,8 +441,8 @@ if st.session_state.aluno_id:
                     st.session_state.chat_history = []
                     st.rerun()
                                             
-                else:
-                    st.info("🔐 Você precisa se autenticar para acessar o simulado.")
-                    # 🚪 Botão para sair
+    else:
+        st.info("🔐 Você precisa se autenticar para acessar o simulado.")
+        # 🚪 Botão para sair
         
 
