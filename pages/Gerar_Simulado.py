@@ -8,15 +8,13 @@ from db_connection import DatabaseConnection
 db = DatabaseConnection()
 df = db.buscar_escolas()
 
-
-
 with open("assets/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Configuração da Página
 st.set_page_config(page_title="Gerar Simulado", layout="wide")
 # # Titulo da página
-# st.title("🚧 Gerar Simulado - Página em Construção")
+st.title(" Gerar Simulado - Página em Construção")
 # # Adicionar Imagem 
 # st.image("em_construcao.jpg", caption="Estamos trabalhando nisso!", width=600)
 
@@ -382,12 +380,8 @@ if st.session_state.aluno_id:
                     ])
                     st.dataframe(resumo, use_container_width=True)
 
-                    
-
-
                     # 🔁 Loop para salvar cada resposta
-                    
-                                           
+                                         
                     for num, info in respostas_usuario.items():
                         resp_cod = info["resposta"].split(")")[0].strip()
 
