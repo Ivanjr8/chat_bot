@@ -1,6 +1,7 @@
 # db_connection.py
 import pyodbc
 import streamlit as st
+import pandas as pd
 
 # Conexão com a base de dados
 class DatabaseConnection:
@@ -25,7 +26,24 @@ class DatabaseConnection:
         if self.conn:
             self.conn.close()
 
+    def buscar_escolas(self):
+        try:
+            self.connect()
+            cursor = self.conn.cursor()
+            query = "SELECT PK_ID_ESCOLA, NO_ESCOLA FROM TB_002_ESCOLAS"
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            colunas = [column[0] for column in cursor.description]
+            st.write("Colunas retornadas:", colunas)  # Isso vai te mostrar no Streamlit
 
+            df = pd.DataFrame.from_records(rows, columns=colunas)
+            return df
+        except Exception as e:
+            st.error(f"Erro ao buscar escolas: {e}")
+            return pd.DataFrame()
+        finally:
+            self.close()
+            
   # Perguntas  
   
     def get_filtros_perguntas(self):

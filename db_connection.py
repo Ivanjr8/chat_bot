@@ -1,6 +1,8 @@
 # db_connection.py
 import pyodbc
 import streamlit as st
+import pandas as pd
+
 
 # Conexão com a base de dados
 class DatabaseConnection:
@@ -24,7 +26,142 @@ class DatabaseConnection:
     def close(self):
         if self.conn:
             self.conn.close()
+    
+# simulado
+    def buscar_escolas1(self, filtro_nome):
+        self.connect()
 
+        query = """
+            SELECT PK_ID_ESCOLA, NO_ESCOLA
+            FROM [dbo].[TB_002_ESCOLAS]
+            WHERE NO_ESCOLA LIKE ?
+        """
+
+        df = pd.read_sql(query, self.conn, params=[f"%{filtro_nome}%"])
+        self.close()
+        return df
+    
+    def buscar_alunos_por_escola(self, escola_id):
+        self.connect()
+
+        query = """
+            SELECT A.PK_ID_ALUNO, A.NO_NOME, A.CO_MATRICULA
+            FROM DBO.TB_001_ALUNOS AS A
+            INNER JOIN DBO.TB_002_ESCOLAS AS B ON A.FK_ID_ESCOLA = B.PK_ID_ESCOLA
+            WHERE A.FK_ID_ESCOLA = ?
+        """
+
+        df = pd.read_sql(query, self.conn, params=[int(escola_id)])  # sem %
+        self.close()
+        return df
+    
+        
+    def buscar_simulados_e_professores(self):
+        self.connect()
+
+        query = """
+            SELECT DISTINCT S.CO_SIMULADO, P.NO_NOME_PROFESSOR AS NO_NOME_PROFESSOR
+            FROM dbo.TB_014_SIMULADO AS S
+            INNER JOIN dbo.TB_013_PROFESSORES AS P ON S.FK_C_PROFESSOR = P.PK_CO_PROFESSOR
+        """
+
+        df = pd.read_sql(query, self.conn)
+        self.close()
+        return df
+
+    def consultar_simulado(self, simulado_id):
+        self.connect()
+
+        query = """
+        SELECT
+    C.CO_SIMULADO              AS [CÓDIGO DO SIMULADO],
+    E.PK_ID_ESCOLA             AS [CÓDIGO INEP],
+    E.NO_ESCOLA                AS [ESCOLA],
+    F.NO_NOME_PROFESSOR        AS [PROFESSOR],
+    A.FK_CO_DISCIPLINA         AS [FK_CO_DISCIPLINA],
+    G.PK_ID_DESCRITOR          AS [FK_ID_DESCRITOR],
+    G.CO_TIPO                  AS [DESCRITOR],
+    G.NO_DESCRITOR             AS [DESCRIÇÃO],
+    A.PK_CO_PERGUNTA           AS [CÓDIGO DA QUESTÃO],
+    DENSE_RANK() OVER (
+        ORDER BY A.PK_CO_PERGUNTA
+    )                          AS [NUMERO DA QUESTÃO],
+    A.NO_PERGUNTA              AS [PERGUNTA],
+    A.DE_PERGUNTA              AS [DESCRIÇÃO DA PERGUNTA],
+    B.NO_ALTERNATIVA           AS [NO_ALTERNATIVA],
+    B.NO_RESPOSTA              AS [NO_RESPOSTA],
+    B.CO_RESPOSTA_CORRETA      AS [CO_RESPOSTA_CORRETA]
+FROM [dbo].[TB_007_PERGUNTAS] AS A
+INNER JOIN [dbo].[TB_008_RESPOSTAS] AS B ON A.PK_CO_PERGUNTA = B.FK_CO_PERGUNTA
+INNER JOIN [dbo].[TB_014_SIMULADO] AS C ON A.PK_CO_PERGUNTA = C.FK_CO_PERGUNTA
+INNER JOIN [dbo].[TB_002_ESCOLAS] AS E ON E.PK_ID_ESCOLA = C.FK_CO_ESCOLA
+INNER JOIN [dbo].[TB_013_PROFESSORES] AS F ON F.PK_CO_PROFESSOR = C.FK_C_PROFESSOR
+INNER JOIN [dbo].[TB_005_DESCRITORES] AS G ON A.FK_CO_DESCRITOR = G.PK_ID_DESCRITOR
+WHERE C.CO_SIMULADO = ?
+
+
+        """
+
+        try:
+            df = pd.read_sql(query, self.conn, params=[int(simulado_id)])
+            # Garantir que todas as colunas esperadas estão presentes
+            colunas_esperadas = ["PERGUNTA", "DESCRICAO_PERGUNTA", "DESCRITOR", "DISCIPLINA", "CO_SIMULADO"]
+            for col in colunas_esperadas:
+                if col not in df.columns:
+                    df[col] = None  # Preenche com None se estiver faltando
+        except Exception as e:
+            import logging
+            logging.error(f"Erro na consulta do simulado {simulado_id}: {e}")
+            df = pd.DataFrame()
+
+        return df
+    
+    def salvar_resultado(self, titulo, descricao, id_disciplina, id_descritor):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            INSERT INTO TB_007_PERGUNTAS (NO_PERGUNTA, DE_PERGUNTA, FK_CO_DISCIPLINA, FK_CO_DESCRITOR)
+            VALUES (?, ?, ?, ?)
+        """, (titulo, descricao, id_disciplina, id_descritor))
+        self.conn.commit()
+
+#-----
+            
+    def buscar_escolas(self):
+        try:
+            self.connect()
+            cursor = self.conn.cursor()
+            query = "SELECT PK_ID_ESCOLA, NO_ESCOLA FROM dbo.TB_002_ESCOLAS"
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            colunas = [column[0] for column in cursor.description]
+            #st.write("Colunas retornadas:", colunas)  # Isso vai te mostrar no Streamlit
+
+            df = pd.DataFrame.from_records(rows, columns=colunas)
+            return df
+        except Exception as e:
+            st.error(f"Erro ao buscar escolas: {e}")
+            return pd.DataFrame()
+        finally:
+            self.close()
+    
+    def buscar_alunos_por_escola1(self, escola_id):
+        try:
+            self.connect()
+            cursor = self.conn.cursor()
+            query = """
+                SELECT PK_ID_ALUNO, NO_NOME, CO_MATRICULA
+                FROM TB_001_ALUNOS
+                WHERE FK_ID_ESCOLA = ?
+            """
+            cursor.execute(query, escola_id)
+            rows = cursor.fetchall()
+            colunas = [column[0] for column in cursor.description]
+            return pd.DataFrame.from_records(rows, columns=colunas)
+        except Exception as e:
+            st.error(f"Erro ao buscar alunos da escola {escola_id}: {e}")
+            return pd.DataFrame()
+        finally:
+            self.close()
 
   # Perguntas  
   
@@ -449,24 +586,26 @@ class DatabaseConnection:
         if self.conn:
             self.conn.close()
             self.conn = None
+            
+    def buscar_simulados(self):
+        try:
+            self.connect()
+            query = "SELECT DISTINCT CO_SIMULADO FROM TB_014_SIMULADO"
+            cursor = self.conn.cursor()
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            colunas = [desc[0] for desc in cursor.description]
+            return pd.DataFrame(rows, columns=colunas)
+        except Exception as e:
+            st.error(f"❌ Erro ao buscar simulados: {e}")
+            return pd.DataFrame()
+        finally:
+            self.close()
+
+
 # Escolas  
 
-    def buscar_escolas():
-        from db_connection import DatabaseConnection  # ajuste conforme sua estrutura
-
-        db = DatabaseConnection()
-        db.connect()
-
-        cursor = db.conn.cursor()
-        query = "SELECT PK_ID_ESCOLA, NO_ESCOLA FROM TB_002_ESCOLAS"
-        cursor.execute(query)
-
-        columns = [column[0] for column in cursor.description]
-        resultados = [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-        cursor.close()
-        db.close()
-        return resultados
+    
 # professores
 
    
@@ -541,22 +680,7 @@ class DatabaseConnection:
         cursor.execute("SELECT PK_CO_DISCIPLINA, NO_DISCIPLINA FROM TB_006_DISCIPLINA")
         return cursor.fetchall()
     
-    def buscar_escolas():
-        from db_connection import DatabaseConnection  # ajuste conforme sua estrutura
-
-        db = DatabaseConnection()
-        db.connect()
-
-        cursor = db.conn.cursor()
-        query = "SELECT PK_ID_ESCOLA, NO_ESCOLA FROM TB_002_ESCOLAS"
-        cursor.execute(query)
-
-        columns = [column[0] for column in cursor.description]
-        resultados = [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-        cursor.close()
-        db.close()
-        return resultados
+    
     
     def buscar_disciplinas(self, filtro_nome=None):
         cursor = self.conn.cursor()
@@ -790,7 +914,7 @@ def get_escola_por_id(self, id_escola):
     if conn:
         try:
             cursor = conn.cursor()
-            query = "SELECT * FROM TB_002_ESCOLAS WHERE PK_ID_ESCOLA = ?"
+            query = "SELECT * FROM dbo.TB_002_ESCOLAS WHERE PK_ID_ESCOLA = ?"
             cursor.execute(query, (id_escola,))
             row = cursor.fetchone()
             if row:
@@ -803,5 +927,3 @@ def get_escola_por_id(self, id_escola):
         finally:
             conn.close()
     return None
-
-    

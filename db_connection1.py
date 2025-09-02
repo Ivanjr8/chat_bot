@@ -441,7 +441,7 @@ class DatabaseConnection:
 # Escolas  
 
     def buscar_escolas():
-        from db_connection import DatabaseConnection  # ajuste conforme sua estrutura
+        from db_connection import DatabaseConnection1  # ajuste conforme sua estrutura
 
         db = DatabaseConnection()
         db.connect()

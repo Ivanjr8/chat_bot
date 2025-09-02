@@ -1,17 +1,14 @@
 import streamlit as st
-from db_connection import DatabaseConnection
 from decoradores import acesso_restrito
-import streamlit as st
 import pandas as pd
+import math
 from pages.gemini_assistente import consultar_gemini
-#from db_connection import DatabaseConnection
-from db_connection1 import (
-    buscar_escolas,
-    buscar_alunos_por_escola,
-    buscar_simulados_e_professores,
-    consultar_simulado,
-    salvar_resultado
-)
+from db_connection import DatabaseConnection
+
+db = DatabaseConnection()
+df = db.buscar_escolas()
+
+
 
 with open("assets/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -108,8 +105,6 @@ botoes_link_professor = {
         "key": "btn_powerbi"
     }
 }
-
-
         
 # 🔧 Conteúdo após login
 if "usuario" in st.session_state and "perfil" in st.session_state:
@@ -254,12 +249,15 @@ for var in ["aluno_id", "co_simulado", "consultado", "finalizado", "respostas_us
         st.session_state[var] = None if var == "co_simulado" else False
 
 # 🏫 Escolha da escola
-busca_escola = st.text_input("Digite parte do nome da escola")
-df_escolas = buscar_escolas()
+busca_escola1 = st.text_input("Digite parte do nome da escola")
+# df_escolas = buscar_escolas1()
+db = DatabaseConnection()
+df_escolas = db.buscar_escolas1(busca_escola1)
 
-if busca_escola:
+
+if busca_escola1:
     df_escolas_filtradas = df_escolas[
-        df_escolas["NO_ESCOLA"].str.contains(busca_escola, case=False, na=False)
+        df_escolas["NO_ESCOLA"].str.contains(busca_escola1, case=False, na=False)
     ]
 
     if not df_escolas_filtradas.empty:
@@ -271,8 +269,10 @@ if busca_escola:
         )
         st.success(f"🏫 Escola selecionada: {escola_nome}")
 
+        
         # 👨‍🎓 Autenticação do aluno
-        df_alunos = buscar_alunos_por_escola(escola_id)
+        
+        df_alunos = db.buscar_alunos_por_escola(escola_id)
         alunos_opcoes = {
             f"{row['NO_NOME']} - Matrícula: {row['CO_MATRICULA']}": (
                 row["PK_ID_ALUNO"], str(row["CO_MATRICULA"])
@@ -298,7 +298,7 @@ else:
 
 # 🚦 Liberação do simulado após autenticação
 if st.session_state.aluno_id:
-    df_simulados = buscar_simulados_e_professores()
+    df_simulados = db.buscar_simulados_e_professores()
     professores = df_simulados["NO_NOME_PROFESSOR"].unique().tolist()
     professor_selecionado = st.selectbox("Selecione o nome do Professor", professores)
 
@@ -317,7 +317,7 @@ if st.session_state.aluno_id:
 
     if st.session_state.consultado:
         with st.spinner("🔄 Consultando dados..."):
-            df = consultar_simulado(simulado_id)
+            df = db.consultar_simulado(simulado_id)
 
             if "CO_SIMULADO" not in df.columns:
                 df["CO_SIMULADO"] = simulado_id
@@ -410,7 +410,7 @@ if st.session_state.aluno_id:
                                 st.success(f"✅ Questão {num}: resposta correta!")
 
                             # 💾 Salvando no banco
-                            sucesso = salvar_resultado(
+                            sucesso = db.salvar_resultado(
                                 pergunta_id=info["id_pergunta"],
                                 resposta_aluno=resp_cod,
                                 disciplina_id=info["disciplina"],

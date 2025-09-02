@@ -1,6 +1,7 @@
 # db_connection.py
 import pyodbc
 import streamlit as st
+import pandas as pd
 
 # Conexão com a base de dados
 class DatabaseConnection:
@@ -495,22 +496,7 @@ class DatabaseConnection:
             self.conn = None
 # Escolas  
 
-    def buscar_escolas():
-        from db_connection import DatabaseConnection  # ajuste conforme sua estrutura
-
-        db = DatabaseConnection()
-        db.connect()
-
-        cursor = db.conn.cursor()
-        query = "SELECT PK_ID_ESCOLA, NO_ESCOLA FROM TB_002_ESCOLAS"
-        cursor.execute(query)
-
-        columns = [column[0] for column in cursor.description]
-        resultados = [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-        cursor.close()
-        db.close()
-        return resultados
+    
 # professores
 
     def professores(self):
@@ -614,22 +600,7 @@ class DatabaseConnection:
         rows = cursor.fetchall()
         return [dict(zip([column[0] for column in cursor.description], row)) for row in rows]
 
-    def buscar_escolas():
-            from db_connection import DatabaseConnection  # ajuste conforme sua estrutura
-
-            db = DatabaseConnection()
-            db.connect()
-
-            cursor = db.conn.cursor()
-            query = "SELECT PK_ID_ESCOLA, NO_ESCOLA FROM TB_002_ESCOLAS"
-            cursor.execute(query)
-
-            columns = [column[0] for column in cursor.description]
-            resultados = [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-            cursor.close()
-            db.close()
-            return resultados
+    
 
 # ------------------------ escolas    
     def get_escolas(self, filtro_nome=None):
@@ -865,4 +836,21 @@ def get_escola_por_id(self, id_escola):
             conn.close()
     return None
 
-    
+def buscar_escolas(self):
+    conn = self.connect()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            query = "SELECT PK_ID_ESCOLA, NO_ESCOLA FROM TB_002_ESCOLAS"
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            columns = [column[0] for column in cursor.description]
+            import pandas as pd
+            return pd.DataFrame(rows, columns=columns)
+        except Exception as e:
+            st.error(f"Erro ao buscar escolas: {e}")
+            return pd.DataFrame()
+        finally:
+            conn.close()
+    return pd.DataFrame()
+
