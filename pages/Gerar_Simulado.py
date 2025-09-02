@@ -152,8 +152,14 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
             if mod_id in botoes_retornar:
                 btn = botoes_retornar[mod_id]
                 chave_unica = f"{btn['key']}_{mod_id}_cadastro"
+                st.session_state.chat_history = []
+                st.session_state.aluno_id = None
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
+                    
+                    
+                    
+        
         if perfil in ['Aluno', 'Administrador']:
             for mod_id in botoes_link_aluno:
                 btn = botoes_link_aluno[mod_id]
@@ -243,35 +249,35 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
             st.rerun()  
 # simulado #############################################################################
 
-# 🔐 Inicialização do estado
+# 🔐 Inicialização do estado da sessão
 for var in ["aluno_id", "co_simulado", "consultado", "finalizado", "respostas_usuario"]:
     if var not in st.session_state:
-        st.session_state[var] = None if var == "co_simulado" else False
+        if var == "co_simulado":
+            st.session_state[var] = None
+        elif var == "respostas_usuario":
+            st.session_state[var] = {}
+        else:
+            st.session_state[var] = False
 
 # 🏫 Escolha da escola
 busca_escola1 = st.text_input("Digite parte do nome da escola")
-# df_escolas = buscar_escolas1()
 db = DatabaseConnection()
 df_escolas = db.buscar_escolas1(busca_escola1)
 
-
 if busca_escola1:
+    # Filtra escolas pelo nome digitado
     df_escolas_filtradas = df_escolas[
         df_escolas["NO_ESCOLA"].str.contains(busca_escola1, case=False, na=False)
     ]
 
     if not df_escolas_filtradas.empty:
         escola_nome = st.selectbox("Selecione sua escola", df_escolas_filtradas["NO_ESCOLA"].tolist())
-        escola_id = int(
-            df_escolas_filtradas.loc[
-                df_escolas_filtradas["NO_ESCOLA"] == escola_nome, "PK_ID_ESCOLA"
-            ].iloc[0]
-        )
+        escola_id = int(df_escolas_filtradas.loc[
+            df_escolas_filtradas["NO_ESCOLA"] == escola_nome, "PK_ID_ESCOLA"
+        ].iloc[0])
         st.success(f"🏫 Escola selecionada: {escola_nome}")
 
-        
         # 👨‍🎓 Autenticação do aluno
-        
         df_alunos = db.buscar_alunos_por_escola(escola_id)
         alunos_opcoes = {
             f"{row['NO_NOME']} - Matrícula: {row['CO_MATRICULA']}": (
@@ -291,10 +297,10 @@ if busca_escola1:
                     st.success(f"✅ Autenticado: {aluno_selecionado.split(' - ')[0]}")
                 else:
                     st.error("❌ Matrícula incorreta.")
-    else:
-        st.warning("Nenhuma escola encontrada.")
-else:
-    st.info("Digite parte do nome da escola para buscar.")
+#     else:
+#         st.warning("Nenhuma escola encontrada.")
+# else:
+#     st.info("Digite parte do nome da escola para buscar.")
 
 # 🚦 Liberação do simulado após autenticação
 if st.session_state.aluno_id:
@@ -302,9 +308,7 @@ if st.session_state.aluno_id:
     professores = df_simulados["NO_NOME_PROFESSOR"].unique().tolist()
     professor_selecionado = st.selectbox("Selecione o nome do Professor", professores)
 
-    simulados_do_professor = df_simulados[
-        df_simulados["NO_NOME_PROFESSOR"] == professor_selecionado
-    ]
+    simulados_do_professor = df_simulados[df_simulados["NO_NOME_PROFESSOR"] == professor_selecionado]
     codigos_simulado = simulados_do_professor["CO_SIMULADO"].tolist()
 
     simulado_id = st.selectbox("Selecione o código do Simulado", codigos_simulado)
@@ -313,7 +317,6 @@ if st.session_state.aluno_id:
     if st.button("Consultar Simulado"):
         st.session_state.consultado = True
         st.session_state.finalizado = False
-  
 
     if st.session_state.consultado:
         with st.spinner("🔄 Consultando dados..."):
@@ -338,8 +341,7 @@ if st.session_state.aluno_id:
                     texto = grupo["PERGUNTA"].iloc[0]
                     descricao = grupo["DESCRIÇÃO DA PERGUNTA"].iloc[0]
                     alternativas = [
-                        f"{alt}) {resp}"
-                        for alt, resp in zip(grupo["NO_ALTERNATIVA"], grupo["NO_RESPOSTA"])
+                        f"{alt}) {resp}" for alt, resp in zip(grupo["NO_ALTERNATIVA"], grupo["NO_RESPOSTA"])
                     ]
 
                     st.markdown(f"*Texto: {descricao}*")
@@ -363,8 +365,6 @@ if st.session_state.aluno_id:
                 if st.button("Finalizar Simulado") and not st.session_state.finalizado:
                     st.session_state.finalizado = True
                     st.session_state.respostas_usuario = respostas_usuario
-                   
-             
 
                     total = len(respostas_usuario)
                     acertos = sum(r["correta"] for r in respostas_usuario.values())
@@ -382,67 +382,69 @@ if st.session_state.aluno_id:
                     ])
                     st.dataframe(resumo, use_container_width=True)
 
-                    try:
-                        for num, info in respostas_usuario.items():
-                            resp_cod = info["resposta"].split(")")[0].strip()
-
-                            # 🔍 Feedback por questão
-                            if info["correta"] != 1:
-                                st.warning(
-                                    f"❌ Questão {num}: você respondeu '{info['resposta']}', "
-                                    f"mas a resposta correta é '{info['resposta_correta']}'."
-                                )
-
-                                resultado_ia = consultar_gemini(info["pergunta"], info["resposta"])
-
-                                st.markdown("#### 💡 Explicação da IA")
-                                st.info(resultado_ia["explicacao"])
-
-                                st.markdown("#### 📚 Links para estudo")
-                                for titulo, link in resultado_ia["links_estudo"]:
-                                    st.markdown(f"- [{titulo}]({link})")
-
-                                st.markdown("#### 🎥 Vídeos sugeridos")
-                                for titulo, link in resultado_ia["videos"]:
-                                    st.markdown(f"- [{titulo}]({link})")
-
-                            else:
-                                st.success(f"✅ Questão {num}: resposta correta!")
+                    
 
 
-                            # Calcula a tentativa
-                            co_tentativa = db.calcular_tentativa(
-                                co_simulado=st.session_state.co_simulado,
-                                aluno_id=st.session_state.aluno_id
+                    # 🔁 Loop para salvar cada resposta
+                    
+                                           
+                    for num, info in respostas_usuario.items():
+                        resp_cod = info["resposta"].split(")")[0].strip()
+
+                        if info["correta"] != 1:
+                            st.warning(f"❌ Questão {num}: você respondeu '{info['resposta']}', mas a resposta correta é '{info['resposta_correta']}'.")
+
+                            resultado_ia = consultar_gemini(
+                                pergunta=info["pergunta"],
+                                resposta_errada=info["resposta"],
+                                descricao=info["descricao"]
                             )
-                                                       
-                            # 💾 Salvando no banco
+                            st.markdown("#### 💡 Explicação da IA")
+                            st.info(resultado_ia["explicacao"])
+
+                            st.markdown("#### 📚 Links para estudo")
+                            for titulo, link in resultado_ia["links_estudo"]:
+                                st.markdown(f"- [{titulo}]({link})")
+
+                            st.markdown("#### 🎥 Vídeos sugeridos")
+                            for titulo, link in resultado_ia["videos"]:
+                                st.markdown(f"- [{titulo}]({link})")
+                        else:
+                            st.success(f"✅ Questão {num}: resposta correta!")
+
+                        try:
                             sucesso = db.salvar_resultado_resposta(
-                                pergunta_id=info["id_pergunta"],
-                                resposta_aluno=resp_cod,
-                                disciplina_id=info["disciplina"],
-                                correta=info["correta"],
-                                co_simulado=st.session_state.co_simulado,
-                                aluno_id=st.session_state.aluno_id
-                                co_tentativa=co_tentativa
+                                pergunta_id=int(info["id_pergunta"]),
+                                resposta_aluno=str(resp_cod),
+                                disciplina_id=int(info["disciplina"]),
+                                correta=int(info["correta"]),
+                                co_simulado=int(st.session_state.co_simulado),
+                                aluno_id=int(st.session_state.aluno_id),
+                                co_tentativa=int(1)
                             )
-
                             if sucesso:
                                 st.info(f"💾 Resposta da pergunta {info['id_pergunta']} salva com sucesso.")
                             else:
                                 st.warning(f"⚠️ Falha ao salvar resposta da pergunta {info['id_pergunta']}.")
-                    except Exception as e:
-                        st.error("❌ Erro ao salvar respostas.")
-                        st.code(str(e), language="bash")
-                        
-                # Botão para limpar chat
+                        except Exception as e:
+                            st.error("❌ Erro ao salvar respostas.")
+                            st.code(str(e), language="bash")
+
+                st.markdown("<hr>", unsafe_allow_html=True)
+                st.markdown("### Finalizou o simulado?")
+                if st.button("🔁 Reiniciar"):
+                    st.session_state.aluno_id = None
+                    st.rerun()
+                    
+                # 🧹 Botão para limpar conversa
+                
                 st.title("💬 Chatbot Inteligente com Links e Vídeos")
                 if st.button("🧹 Limpar conversa"):
                     st.session_state.chat_history = []
+                    st.session_state.aluno_id = None
                     st.rerun()
                                             
-    else:
-        st.info("🔐 Você precisa se autenticar para acessar o simulado.")
-        # 🚪 Botão para sair
+    db.close()
+        
         
 
