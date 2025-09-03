@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine
 from db_connection import DatabaseConnection
-
 from decoradores import acesso_restrito
 
 
