@@ -8,13 +8,15 @@ from db_connection import DatabaseConnection
 db = DatabaseConnection()
 df = db.buscar_escolas()
 
+
+
 with open("assets/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Configuração da Página
 st.set_page_config(page_title="Gerar Simulado", layout="wide")
 # # Titulo da página
-st.title(" Gerar Simulado - Página em Construção")
+# st.title("🚧 Gerar Simulado - Página em Construção")
 # # Adicionar Imagem 
 # st.image("em_construcao.jpg", caption="Estamos trabalhando nisso!", width=600)
 
@@ -150,14 +152,8 @@ if "usuario" in st.session_state and "perfil" in st.session_state:
             if mod_id in botoes_retornar:
                 btn = botoes_retornar[mod_id]
                 chave_unica = f"{btn['key']}_{mod_id}_cadastro"
-                st.session_state.chat_history = []
-                st.session_state.aluno_id = None
                 if st.button(btn["label"], key=chave_unica):
                     st.switch_page(btn["page"])
-                    
-                    
-                    
-        
         if perfil in ['Aluno', 'Administrador']:
             for mod_id in botoes_link_aluno:
                 btn = botoes_link_aluno[mod_id]
@@ -313,8 +309,7 @@ if st.session_state.aluno_id:
     st.session_state.co_simulado = simulado_id
 
     if st.button("Consultar Simulado"):
-        st.session_state.consultado = True
-        st.session_state.finalizado = False
+       st.session_state.finalizado = False
 
     if st.session_state.consultado:
         with st.spinner("🔄 Consultando dados..."):
@@ -380,8 +375,12 @@ if st.session_state.aluno_id:
                     ])
                     st.dataframe(resumo, use_container_width=True)
 
+                    
+
+
                     # 🔁 Loop para salvar cada resposta
-                                         
+                    
+                                           
                     for num, info in respostas_usuario.items():
                         resp_cod = info["resposta"].split(")")[0].strip()
 
@@ -409,12 +408,13 @@ if st.session_state.aluno_id:
                         try:
                             sucesso = db.salvar_resultado_resposta(
                                 pergunta_id=int(info["id_pergunta"]),
-                                resposta_aluno=str(resp_cod),
-                                disciplina_id=int(info["disciplina"]),
-                                correta=int(info["correta"]),
-                                co_simulado=int(st.session_state.co_simulado),
-                                aluno_id=int(st.session_state.aluno_id),
-                                co_tentativa=int(1)
+                            resposta_aluno=str(resp_cod),
+                            disciplina_id=int(info["disciplina"]),
+                            correta=bool(info["correta"]),
+                            co_simulado=int(st.session_state.co_simulado),
+                            aluno_id=int(st.session_state.aluno_id),
+                            co_tentativa=int(1)
+
                             )
                             if sucesso:
                                 st.info(f"💾 Resposta da pergunta {info['id_pergunta']} salva com sucesso.")
